@@ -1,0 +1,18 @@
+{
+    "name": "EventEmitter",
+    "author": "Vladislav Kurkin <b-vladi@cs-console.ru> (https://github.com/B-Vladi)",
+    "version": "0.0.1",
+    "main": "EventEmitter.js",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/B-Vladi/EventEmitter"
+    },
+    "engines": {
+        "node": "*"
+    },
+    "bugs": {
+        "email": "b-vladi@cs-console.ru",
+        "url": "https://github.com/B-Vladi/EventEmitter/issues"
+    }
+}
