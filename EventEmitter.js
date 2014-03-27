@@ -1,5 +1,9 @@
 'use strict';
 /**
+ * @fileOverview EventEmitter.
+ */
+
+/**
  * Наделяет объект событийной моделью.
  * @constructor
  */
