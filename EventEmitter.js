@@ -145,7 +145,7 @@ EventEmitter.prototype.on = function (type, listener, context) {
         _events[type] = [];
     }
 
-    _events[type].unshift(event);
+    _events[type].push(event);
 
     return this;
 };
@@ -328,7 +328,7 @@ EventEmitter.prototype.emit = function (type, args) {
         event,
         context,
         listener,
-        listenerArgs,
+        arg,
         error = arguments[1];
 
     if (type === 'error' && !(events && length)) {
@@ -344,16 +344,18 @@ EventEmitter.prototype.emit = function (type, args) {
         return false;
     }
 
-    if (argsLength > 2) {
-        listenerArgs = new Array(argsLength);
+    if (length && argsLength > 2) {
+        arg = new Array(argsLength);
 
         while (index < argsLength) {
-            listenerArgs[index++] = arguments[index];
+            arg[index++] = arguments[index];
         }
+
+        index = 0;
     }
 
-    while (length--) {
-        event = events[length];
+    while (index < length) {
+        event = events[index++];
 
         EventEmitter.event = event;
 
@@ -379,7 +381,7 @@ EventEmitter.prototype.emit = function (type, args) {
                 break;
             // slower
             default:
-                listener.apply(context, listenerArgs);
+                listener.apply(context, arg);
         }
 
         if (event.stopping === true) {
@@ -482,6 +484,7 @@ function delegate() {
     var type;
     var argsLength;
     var index = 0;
+    var arg;
 
     if (emitter instanceof EventEmitter) {
         argsLength = arguments.length;
@@ -504,8 +507,8 @@ function delegate() {
                 args[index] = type;
 
                 while (index < argsLength) {
-                    args[index + 1] = arguments[index];
-                    index++;
+                    arg = arguments[index++];
+                    args[index] = arg;
                 }
 
                 emitter.emit.apply(emitter, args);
