@@ -78,7 +78,7 @@ EventEmitter.stop = function (context) {
         return event;
     }
 
-    if (event instanceof EventEmitter.Event) {
+    if (event instanceof Event) {
         event.stopping = true;
     }
 
@@ -124,28 +124,29 @@ EventEmitter.listenerCount = function (emitter, type) {
 EventEmitter.prototype.on = function (type, listener, context) {
     var
         _events = this._events,
+        _type = type,
         event;
 
     if (!_events) {
         _events = this._events = {};
     }
 
-    if (type instanceof EventEmitter.Event) {
-        event = type;
-        type = event.type;
+    if (_type instanceof Event) {
+        event = _type;
+        _type = event.type;
     } else {
-        event = new EventEmitter.Event(type, listener, context);
+        event = new Event(_type, listener, context);
     }
 
-    if (_events[EventEmitter.EVENT_NEW_LISTENER]) {
-        this.emit(EventEmitter.EVENT_NEW_LISTENER, type, event.listener, event.context);
+    if (!_events[_type]) {
+        _events[_type] = [];
     }
 
-    if (!_events[type]) {
-        _events[type] = [];
+    if (_events.newListener) {
+        this.emit('newListener', _type, event.listener, event.context);
     }
 
-    _events[type].push(event);
+    _events[_type].push(event);
 
     return this;
 };
@@ -176,7 +177,7 @@ EventEmitter.prototype.addListener = EventEmitter.prototype.on;
  *   .emit('type');
  */
 EventEmitter.prototype.once = function (type, listener, context) {
-    return this.on(type instanceof EventEmitter.Event ? type : new EventEmitter.Event(type, listener, context, true));
+    return this.on(type instanceof Event ? type : new Event(type, listener, context, true));
 };
 
 /**
@@ -194,7 +195,7 @@ EventEmitter.prototype.off = function (type, listener) {
         index = length,
         position = -1,
         isEmitter = listener instanceof EventEmitter,
-        isEvent = listener instanceof EventEmitter.Event,
+        isEvent = listener instanceof Event,
         isFunction = typeof listener === 'function';
 
     if (isFunction || isEvent || isEmitter) {
@@ -218,8 +219,8 @@ EventEmitter.prototype.off = function (type, listener) {
             events.splice(position, 1);
         }
 
-        if (_events[EventEmitter.EVENT_REMOVE_LISTENER]) {
-            this.emit(EventEmitter.EVENT_REMOVE_LISTENER, type, listener);
+        if (_events.removeListener) {
+            this.emit('removeListener', type, listener);
         }
     } else {
         throw new Error('listener must be a function, EventEmitter or EventEmitter.Event');
@@ -231,7 +232,7 @@ EventEmitter.prototype.off = function (type, listener) {
 /**
  * То же, что и {@link EventEmitter#off}.
  * @param {String} type Тип события.
- * @param {Function|Event|EventEmitter} [listener] Обработчик, который необходимо удалить.
+ * @param {Function|EventEmitter|EventEmitter.Event} [listener] Обработчик, который необходимо удалить.
  * @function
  * @returns {EventEmitter}
  */
@@ -265,12 +266,12 @@ EventEmitter.prototype.removeAllListeners = function (type) {
 
     if (arguments.length === 0) {
         for (key in _events) {
-            if (key !== EventEmitter.EVENT_REMOVE_LISTENER && _events.hasOwnProperty(key)) {
+            if (key !== 'removeListener' && _events.hasOwnProperty(key)) {
                 this.removeAllListeners(key);
             }
         }
 
-        this.removeAllListeners(EventEmitter.EVENT_REMOVE_LISTENER);
+        this.removeAllListeners('removeListener');
         this._events = {};
 
         return this;
@@ -406,7 +407,7 @@ EventEmitter.prototype.emit = function (type, args) {
  */
 EventEmitter.prototype.delegate = function (emitter, type, alias) {
     if (typeof type === 'string') {
-        this.on(new EventEmitter.Event(type, delegate, this, false, emitter, alias));
+        this.on(new Event(type, delegate, this, false, emitter, alias));
     }
 
     return this;
@@ -423,11 +424,12 @@ EventEmitter.prototype._maxListeners = null;
  * @param {Boolean} [isOnce] {@link EventEmitter.Event#isOnce}
  * @param {EventEmitter} [delegate] {@link EventEmitter.Event#delegate}
  * @param {String} [alias] {@link EventEmitter.Event#alias}
+ * @name EventEmitter.Event
  * @constructor
  * @returns {EventEmitter.Event}
  * @throws {Error} Бросает исключение, если обработчик события не является функцией.
  */
-EventEmitter.Event = function (type, listener, context, isOnce, delegate, alias) {
+function Event(type, listener, context, isOnce, delegate, alias) {
     if (typeof listener !== 'function') {
         throw new Error('listener must be a function');
     }
@@ -469,7 +471,9 @@ EventEmitter.Event = function (type, listener, context, isOnce, delegate, alias)
     this.stopping = false;
 
     return this;
-};
+}
+
+EventEmitter.Event = Event;
 
 /**
  * Exports: {@link EventEmitter}
@@ -480,7 +484,7 @@ module.exports = EventEmitter;
 function delegate() {
     var args;
     var event = EventEmitter.event;
-    var emitter = event instanceof EventEmitter.Event && event.delegate;
+    var emitter = event instanceof Event && event.delegate;
     var type;
     var argsLength;
     var index = 0;
