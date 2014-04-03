@@ -123,9 +123,9 @@ EventEmitter.listenerCount = function (emitter, type) {
  */
 EventEmitter.prototype.on = function (type, listener, context) {
     var
+        event,
         _events = this._events,
-        _type = type,
-        event;
+        _type = type;
 
     if (!_events) {
         _events = this._events = {};
@@ -144,6 +144,10 @@ EventEmitter.prototype.on = function (type, listener, context) {
 
     if (_events.newListener) {
         this.emit('newListener', _type, event.listener, event.context);
+    }
+
+    if (event.context === this) {
+        event.context = null;
     }
 
     _events[_type].push(event);
