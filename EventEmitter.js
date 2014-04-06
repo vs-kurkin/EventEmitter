@@ -495,19 +495,16 @@ function delegate() {
     var args;
     var event = EventEmitter.event;
     var emitter = event instanceof Event && event.delegate;
-    var type;
-    var argsLength;
+    var type = typeof event.alias === 'string' ? event.alias : event.type;
+    var length = arguments.length;
     var index = 0;
     var arg;
 
-    argsLength = arguments.length;
-    type = typeof event.alias === 'string' ? event.alias : event.type;
+    if (length) {
+        args = new Array(length + 1);
+        args[0] = type;
 
-    if (argsLength) {
-        args = new Array(argsLength + 1);
-        args[index] = type;
-
-        while (index < argsLength) {
+        while (index < length) {
             arg = arguments[index++];
             args[index] = arg;
         }
