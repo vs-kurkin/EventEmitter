@@ -69,22 +69,28 @@ EventEmitter.EVENT_REMOVE_LISTENER = 'removeListener';
  *      // Этот обработчик никогда не будет вызван.
  *   })
  *   .emit('event');
- *   @returns {EventEmitter.Event|null} Текущий объект события
+ *   @returns {Boolean} Возвращает true, если выполнение обработчиков события было остановлено.
  */
 EventEmitter.stop = function (context) {
     var event = EventEmitter.event;
 
     if (context instanceof Object && context !== EventEmitter._context) {
-        return event;
+        return false;
     }
 
     if (event instanceof Event) {
-        event.stopping = true;
+        return event.stopping = true;
     }
 
-    return event;
+    return false;
 };
 
+/**
+ * Контекст выполнения обработчиков текущего события.
+ * @default null
+ * @type {Object}
+ * @private
+ */
 EventEmitter._context = null;
 
 /**
@@ -494,32 +500,20 @@ function delegate() {
     var index = 0;
     var arg;
 
-    if (emitter instanceof EventEmitter) {
-        argsLength = arguments.length;
-        type = typeof event.alias === 'string' ? event.alias : event.type;
+    argsLength = arguments.length;
+    type = typeof event.alias === 'string' ? event.alias : event.type;
 
-        switch (argsLength) {
-            // fast cases
-            case 0:
-                emitter.emit(type);
-                break;
-            case 1:
-                emitter.emit(type, arguments[0]);
-                break;
-            case 2:
-                emitter.emit(type, arguments[0], arguments[1]);
-                break;
-            default:
-                // slower
-                args = new Array(argsLength + 1);
-                args[index] = type;
+    if (argsLength) {
+        args = new Array(argsLength + 1);
+        args[index] = type;
 
-                while (index < argsLength) {
-                    arg = arguments[index++];
-                    args[index] = arg;
-                }
-
-                emitter.emit.apply(emitter, args);
+        while (index < argsLength) {
+            arg = arguments[index++];
+            args[index] = arg;
         }
+
+        emitter.emit.apply(emitter, args);
+    } else {
+        emitter.emit(type);
     }
 }
