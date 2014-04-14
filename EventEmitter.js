@@ -124,7 +124,7 @@ EventEmitter.listenerCount = function (emitter, type) {
  * Устанавливает обработчик события.
  * @param {String|Event} type Тип события.
  * @param {Function} [listener] Обработчик события.
- * @param {Object|null} [context] Контекст выполнения обработчика.
+ * @param {Object|null} [context=this] Контекст выполнения обработчика.
  * @returns {EventEmitter}
  */
 EventEmitter.prototype.on = function (type, listener, context) {
@@ -176,7 +176,7 @@ EventEmitter.prototype.addListener = EventEmitter.prototype.on;
  * Устанавливает одноразовый обработчик события.
  * @param {String|Event} type Тип события.
  * @param {Function} [listener] Обработчик события.
- * @param {Object|null} [context] Контекст выполнения обработчика.
+ * @param {Object|null} [context=this] Контекст выполнения обработчика.
  * @returns {EventEmitter}
  * @example
  * new EventEmitter()
@@ -374,7 +374,7 @@ EventEmitter.prototype.emit = function (type, args) {
             this.removeListener(type, event);
         }
 
-        context = event.context instanceof Object ? event.context : this;
+        context = typeof event.context === 'object' ? event.context : this;
         listener = event.listener;
 
         EventEmitter._context = context;
