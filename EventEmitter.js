@@ -122,7 +122,7 @@ EventEmitter.listenerCount = function (emitter, type) {
 
 /**
  * Устанавливает обработчик события.
- * @param {String|EventEmitter.Event} type Тип события.
+ * @param {String|Event} type Тип события.
  * @param {Function} [listener] Обработчик события.
  * @param {Object|null} [context] Контекст выполнения обработчика.
  * @returns {EventEmitter}
@@ -174,7 +174,7 @@ EventEmitter.prototype.addListener = EventEmitter.prototype.on;
 
 /**
  * Устанавливает одноразовый обработчик события.
- * @param {String|EventEmitter.Event} type Тип события.
+ * @param {String|Event} type Тип события.
  * @param {Function} [listener] Обработчик события.
  * @param {Object|null} [context] Контекст выполнения обработчика.
  * @returns {EventEmitter}
@@ -242,7 +242,7 @@ EventEmitter.prototype.off = function (type, listener) {
 /**
  * То же, что и {@link EventEmitter#off}.
  * @param {String} type Тип события.
- * @param {Function|EventEmitter|EventEmitter.Event} [listener] Обработчик, который необходимо удалить.
+ * @param {Function|EventEmitter|Event} [listener] Обработчик, который необходимо удалить.
  * @function
  * @returns {EventEmitter}
  */
@@ -298,7 +298,7 @@ EventEmitter.prototype.removeAllListeners = function (type) {
 };
 
 /**
- * Возвращает массив объектов события {@link EventEmitter.Event}.
+ * Возвращает массив объектов события {@link Event}.
  * @param {String} [type] Тип события.
  * @returns {Array} Массив объектов события.
  */
@@ -428,15 +428,15 @@ EventEmitter.prototype._maxListeners = null;
 
 /**
  * Конструктор объекта события.
- * @param {String} type {@link EventEmitter.Event#type}
- * @param {Function} listener {@link EventEmitter.Event#listener}
- * @param {Object|null} [context] {@link EventEmitter.Event#context}
- * @param {Boolean} [isOnce] {@link EventEmitter.Event#isOnce}
- * @param {EventEmitter} [delegate] {@link EventEmitter.Event#delegate}
- * @param {String} [alias] {@link EventEmitter.Event#alias}
- * @name EventEmitter.Event
+ * @param {String} type {@link Event#type}
+ * @param {Function} listener {@link Event#listener}
+ * @param {Object|null} [context] {@link Event#context}
+ * @param {Boolean} [isOnce] {@link Event#isOnce}
+ * @param {EventEmitter} [delegate] {@link Event#delegate}
+ * @param {String} [alias] {@link Event#alias}
+ * @name Event
  * @constructor
- * @returns {EventEmitter.Event}
+ * @returns {Event}
  * @throws {Error} Бросает исключение, если обработчик события не является функцией.
  */
 function Event(type, listener, context, isOnce, delegate, alias) {
@@ -483,6 +483,10 @@ function Event(type, listener, context, isOnce, delegate, alias) {
     return this;
 }
 
+/**
+ * @name {EventEmitter.Event}
+ * @type {Event}
+ */
 EventEmitter.Event = Event;
 
 /**
@@ -497,17 +501,15 @@ function delegate() {
     var emitter = event instanceof Event && event.delegate;
     var type = typeof event.alias === 'string' ? event.alias : event.type;
     var length = arguments.length;
-    var index = 0;
-    var arg;
 
     if (length) {
         args = new Array(length + 1);
-        args[0] = type;
 
-        while (index < length) {
-            arg = arguments[index++];
-            args[index] = arg;
+        while (length) {
+            args[length--] = arguments[length];
         }
+
+        args[0] = type;
 
         emitter.emit.apply(emitter, args);
     } else {
