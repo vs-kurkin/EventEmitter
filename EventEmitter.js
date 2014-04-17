@@ -4,6 +4,14 @@
  */
 
 /**
+ * Объект {@link EventEmitter}, выполнение обработчиков собития которого нужно остановить.
+ * @default null
+ * @type {EventEmitter}
+ * @inner
+ */
+var stop = null;
+
+/**
  * Наделяет объект событийной моделью.
  * @constructor
  */
@@ -53,8 +61,15 @@ EventEmitter.EVENT_NEW_LISTENER = 'newListener';
 EventEmitter.EVENT_REMOVE_LISTENER = 'removeListener';
 
 /**
- * Останавливает дальнейшее выполнение обработчиков события.
- * @param {Object|EventEmitter} [context] Если аргумент был передан, выполнение будет остановлено только если контекст текущего события будет совпадать с этим объектом.
+ * Объект {@link EventEmitter}, чьи ообработчики событий выполняются в текущий момент.
+ * @default null
+ * @type {EventEmitter}
+ * @readonly
+ */
+EventEmitter.current = null;
+
+/**
+ * Останавливает выполнение обработчиков события.
  * @static
  * @example
  * var EventEmitter = require('EventEmitter');
@@ -63,7 +78,7 @@ EventEmitter.EVENT_REMOVE_LISTENER = 'removeListener';
  * emitter
  *   .on('event', function () {
  *      // Останавливаем дальнейшее выполнение обработчиков.
- *      EventEmitter.stop();
+ *      this.stopEmit();
  *   })
  *   .on('event', function () {
  *      // Этот обработчик никогда не будет вызван.
@@ -71,27 +86,16 @@ EventEmitter.EVENT_REMOVE_LISTENER = 'removeListener';
  *   .emit('event');
  *   @returns {Boolean} Возвращает true, если выполнение обработчиков события было остановлено.
  */
-EventEmitter.stop = function (context) {
-    var event = EventEmitter.event;
+EventEmitter.prototype.stopEmit = function () {
+    var current = EventEmitter.current;
 
-    if (context instanceof Object && context !== EventEmitter._context) {
-        return false;
-    }
-
-    if (event instanceof Event) {
-        return event.stopping = true;
+    if (current === this) {
+        stop = this;
+        return true;
     }
 
     return false;
 };
-
-/**
- * Контекст выполнения обработчиков текущего события.
- * @default null
- * @type {Object}
- * @private
- */
-EventEmitter._context = null;
 
 /**
  * Устанавливает максимальное количество обработчиков одного события.
@@ -321,8 +325,8 @@ EventEmitter.prototype.listeners = function (type) {
  * @returns {Boolean} Вернет true, если был успешно отработан хотя бы один обработчик события.
  * @example
  * new EventEmitter()
- *   .on('error', function (error) {
- *     throw error; // 'foo'
+ *   .on('error', function (reason) {
+ *     throw reason; // 'foo'
  *   })
  *   .emit('error', 'foo');
  *   @throws {Error} Бросает исключение, если генерируется событие error и на него не подписан ни один обработчик.
@@ -335,7 +339,8 @@ EventEmitter.prototype.emit = function (type, args) {
         index = 0,
         argsLength = arguments.length - 1,
         event,
-        currentEvent,
+        current,
+        _stop,
         context,
         listener,
         arg,
@@ -364,7 +369,10 @@ EventEmitter.prototype.emit = function (type, args) {
         index = 0;
     }
 
-    currentEvent = EventEmitter.event;
+    _stop = stop;
+    current = EventEmitter.current;
+
+    EventEmitter.current = this;
 
     while (index < length) {
         event = events[index++];
@@ -377,8 +385,6 @@ EventEmitter.prototype.emit = function (type, args) {
 
         context = event.context == null ? this : event.context;
         listener = event.listener;
-
-        EventEmitter._context = context;
 
         if (typeof listener === 'function') {
             switch (argsLength) {
@@ -402,13 +408,13 @@ EventEmitter.prototype.emit = function (type, args) {
             listener.emit.apply(listener, arguments);
         }
 
-        if (event.stopping === true) {
+        if (stop === this) {
             break;
         }
     }
 
-    EventEmitter.event = currentEvent;
-    EventEmitter._context = null;
+    stop = _stop;
+    EventEmitter.current = current;
 
     return true;
 };
@@ -452,11 +458,6 @@ function Event(type, listener, context, isOnce) {
      * @type {Boolean}
      */
     this.isOnce = isOnce;
-    /**
-     * Флаг, указывающий на то, что необходимо остановить дальнейший вызов обработчиков текущего события.
-     * @type {Boolean}
-     */
-    this.stopping = false;
 
     return this;
 }
