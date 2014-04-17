@@ -100,7 +100,7 @@ EventEmitter._context = null;
  */
 EventEmitter.prototype.setMaxListeners = function(count) {
     if (typeof count !== 'number' || count < 0 || isNaN(count)) {
-        throw new Error('count must be a positive number');
+        throw new Error('Count must be a positive number');
     }
 
     this._maxListeners = count;
@@ -231,7 +231,7 @@ EventEmitter.prototype.off = function (type, listener) {
             this.emit('removeListener', type, listener);
         }
     } else {
-        throw new Error('listener must be a function, EventEmitter or EventEmitter.Event');
+        throw new Error('Listener must be a function, EventEmitter or EventEmitter.Event');
     }
 
     return this;
@@ -429,7 +429,7 @@ EventEmitter.prototype._maxListeners = null;
  */
 function Event(type, listener, context, isOnce) {
     if (!(typeof listener === 'function' && (listener instanceof EventEmitter))) {
-        throw new Error('listener must be a function');
+        throw new Error('Listener must be a function');
     }
 
     /**
