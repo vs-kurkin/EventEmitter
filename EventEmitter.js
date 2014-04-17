@@ -293,7 +293,7 @@ EventEmitter.prototype.removeAllListeners = function (type) {
     index = listeners.length;
 
     while (index--) {
-        this.removeListener(type, listeners[index]);
+        this.off(type, listeners[index]);
     }
 
     return this;
@@ -380,7 +380,7 @@ EventEmitter.prototype.emit = function (type, args) {
         EventEmitter.event = event;
 
         if (event.isOnce === true) {
-            this.removeListener(type, event);
+            this.off(type, event);
         }
 
         context = event.context == null ? this : event.context;
