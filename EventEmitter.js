@@ -123,7 +123,7 @@ EventEmitter.listenerCount = function (emitter, type) {
 /**
  * Устанавливает обработчик события.
  * @param {String|Event} type Тип события.
- * @param {Function} [listener] Обработчик события.
+ * @param {Function|EventEmitter} [listener] Обработчик события.
  * @param {Object} [context=this] Контекст выполнения обработчика.
  * @returns {EventEmitter}
  */
@@ -165,7 +165,7 @@ EventEmitter.prototype.on = function (type, listener, context) {
 /**
  * То же, что и {@link EventEmitter#on}.
  * @param {String} type Тип события.
- * @param {Function} listener Обработчик события.
+ * @param {Function|EventEmitter} listener Обработчик события.
  * @param {Object|null} [context] Контекст выполнения обработчика.
  * @function
  * @returns {EventEmitter}
@@ -175,7 +175,7 @@ EventEmitter.prototype.addListener = EventEmitter.prototype.on;
 /**
  * Устанавливает одноразовый обработчик события.
  * @param {String|Event} type Тип события.
- * @param {Function} [listener] Обработчик события.
+ * @param {Function|EventEmitter} [listener] Обработчик события.
  * @param {Object|null} [context=this] Контекст выполнения обработчика.
  * @returns {EventEmitter}
  * @example
@@ -204,13 +204,11 @@ EventEmitter.prototype.off = function (type, listener) {
         length = events ? events.length : 0,
         index = length,
         position = -1,
-        isEmitter = listener instanceof EventEmitter,
-        isEvent = listener instanceof Event,
-        isFunction = typeof listener === 'function';
+        isEvent = listener instanceof Event;
 
-    if (isFunction || isEvent || isEmitter) {
+    if (typeof listener === 'function' || listener instanceof EventEmitter || isEvent) {
         while (index--) {
-            event = isFunction ? events[index].listener : isEvent ? events[index] : events[index].delegate;
+            event = isEvent ? events[index] : events[index].listener;
 
             if (event === listener) {
                 position = index;
@@ -382,20 +380,26 @@ EventEmitter.prototype.emit = function (type, args) {
 
         EventEmitter._context = context;
 
-        switch (argsLength) {
-            // fast cases
-            case 0:
-                listener.call(context);
-                break;
-            case 1:
-                listener.call(context, arguments[1]);
-                break;
-            case 2:
-                listener.call(context, arguments[1], arguments[2]);
-                break;
-            // slower
-            default:
-                listener.apply(context, arg);
+        if (typeof listener === 'function') {
+            switch (argsLength) {
+                // fast cases
+                case 0:
+                    listener.call(context);
+                    break;
+                case 1:
+                    listener.call(context, arguments[1]);
+                    break;
+                case 2:
+                    listener.call(context, arguments[1], arguments[2]);
+                    break;
+                // slower
+                default:
+                    listener.apply(context, arg);
+            }
+        } else if (listener === this) {
+            throw new Error('Can\'t emit on itself');
+        } else {
+            listener.emit.apply(listener, arguments);
         }
 
         if (event.stopping === true) {
@@ -409,41 +413,22 @@ EventEmitter.prototype.emit = function (type, args) {
     return true;
 };
 
-/**
- * Делегирует событие на другой экземпляр {@link EventEmitter}.
- * Другими словами, каждый раз при возникновении события <i>type</i> на исходном объекте,
- * автоматически будет генерироваться событие <i>alias</i> на объекте <i>delegate</i> с аргументами из исходного события.
- * @param {EventEmitter} emitter Объект, на котором нужно генерировать делегированное событие.
- * @param {String} type Имя события, которое нужно делегировать.
- * @param {String} [alias=type] Имя события, которое будет сгенерировано на объекте delegate. По-умолчанию имя совпадает со значением, переданным в type.
- * @returns {EventEmitter}
- */
-EventEmitter.prototype.delegate = function (emitter, type, alias) {
-    if (typeof type === 'string') {
-        this.on(new Event(type, delegate, this, false, emitter, alias));
-    }
-
-    return this;
-};
-
 EventEmitter.prototype._events = null;
 EventEmitter.prototype._maxListeners = null;
 
 /**
  * Конструктор объекта события.
  * @param {String} type {@link Event#type}
- * @param {Function} listener {@link Event#listener}
+ * @param {Function|EventEmitter} listener {@link Event#listener}
  * @param {Object|null} [context] {@link Event#context}
  * @param {Boolean} [isOnce] {@link Event#isOnce}
- * @param {EventEmitter} [delegate] {@link Event#delegate}
- * @param {String} [alias] {@link Event#alias}
  * @name Event
  * @constructor
  * @returns {Event}
- * @throws {Error} Бросает исключение, если обработчик события не является функцией.
+ * @throws {Error} Бросает исключение, если обработчик события не является функцией или объектом {@link EventEmitter}.
  */
-function Event(type, listener, context, isOnce, delegate, alias) {
-    if (typeof listener !== 'function') {
+function Event(type, listener, context, isOnce) {
+    if (!(typeof listener === 'function' && (listener instanceof EventEmitter))) {
         throw new Error('listener must be a function');
     }
 
@@ -454,7 +439,7 @@ function Event(type, listener, context, isOnce, delegate, alias) {
     this.type = type;
     /**
      * Функция - обработчик события.
-     * @type {Function}
+     * @type {Function|EventEmitter}
      */
     this.listener = listener;
     /**
@@ -463,20 +448,10 @@ function Event(type, listener, context, isOnce, delegate, alias) {
      */
     this.context = context;
     /**
-     * Объект, на который будет делегироваться событие.
-     * @type {EventEmitter}
-     */
-    this.delegate = delegate;
-    /**
      * Флаг, указывающий на то, что это событие одноразовое.
      * @type {Boolean}
      */
     this.isOnce = isOnce;
-    /**
-     * Алиас имени делегируемого события.
-     * @type {String}
-     */
-    this.alias = alias;
     /**
      * Флаг, указывающий на то, что необходимо остановить дальнейший вызов обработчиков текущего события.
      * @type {Boolean}
@@ -497,25 +472,3 @@ EventEmitter.Event = Event;
  * @exports EventEmitter
  */
 module.exports = EventEmitter;
-
-function delegate() {
-    var args;
-    var event = EventEmitter.event;
-    var emitter = event instanceof Event && event.delegate;
-    var type = typeof event.alias === 'string' ? event.alias : event.type;
-    var length = arguments.length;
-
-    if (length) {
-        args = new Array(length + 1);
-
-        while (length) {
-            args[length--] = arguments[length];
-        }
-
-        args[0] = type;
-
-        emitter.emit.apply(emitter, args);
-    } else {
-        emitter.emit(type);
-    }
-}
