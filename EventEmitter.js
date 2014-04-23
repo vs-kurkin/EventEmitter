@@ -141,11 +141,11 @@ EventEmitter.prototype.on = function (type, listener, context) {
         _events = this._events = {};
     }
 
-    if (_type instanceof Event) {
-        event = _type;
+    if (type instanceof Event) {
+        event = type;
         _type = event.type;
     } else {
-        event = new Event(_type, listener, context);
+        event = new Event(type, listener, context);
     }
 
     if (!_events[_type]) {
@@ -191,7 +191,16 @@ EventEmitter.prototype.addListener = EventEmitter.prototype.on;
  *   .emit('type');
  */
 EventEmitter.prototype.once = function (type, listener, context) {
-    return this.on(type instanceof Event ? type : new Event(type, listener, context, true));
+    var event;
+
+    if (type instanceof Event) {
+        type.isOnce = true;
+        event = type;
+    } else {
+        event = new Event(type, listener, context, true);
+    }
+
+    return this.on(event);
 };
 
 /**
@@ -210,7 +219,7 @@ EventEmitter.prototype.off = function (type, listener) {
         position = -1,
         isEvent = listener instanceof Event;
 
-    if (typeof listener === 'function' || listener instanceof EventEmitter || isEvent) {
+    if (typeof listener === 'function' || typeof listener.emit === 'function' || isEvent) {
         while (index--) {
             event = isEvent ? events[index] : events[index].listener;
 
@@ -434,8 +443,8 @@ EventEmitter.prototype._maxListeners = null;
  * @throws {Error} Бросает исключение, если обработчик события не является функцией или объектом {@link EventEmitter}.
  */
 function Event(type, listener, context, isOnce) {
-    if (!(typeof listener === 'function' && (listener instanceof EventEmitter))) {
-        throw new Error('Listener must be a function');
+    if (!(typeof listener === 'function' && typeof listener.emit === 'function')) {
+        throw new Error('Listener must be a function or EventEmitter');
     }
 
     /**
