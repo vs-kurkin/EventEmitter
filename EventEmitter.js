@@ -87,9 +87,7 @@ EventEmitter.current = null;
  *   @returns {Boolean} Возвращает true, если выполнение обработчиков события было остановлено.
  */
 EventEmitter.prototype.stopEmit = function () {
-    var current = EventEmitter.current;
-
-    if (current === this) {
+    if (EventEmitter.current === this) {
         stop = this;
         return true;
     }
@@ -126,41 +124,33 @@ EventEmitter.listenerCount = function (emitter, type) {
 
 /**
  * Устанавливает обработчик события.
- * @param {String|Event} type Тип события.
- * @param {Function|EventEmitter} [listener] Обработчик события.
+ * @param {String} type Тип события.
+ * @param {Function|EventEmitter|Event} listener Обработчик события.
  * @param {Object} [context=this] Контекст выполнения обработчика.
  * @returns {EventEmitter}
  */
 EventEmitter.prototype.on = function (type, listener, context) {
     var
-        event,
-        _events = this._events,
-        _type = type;
+        event = (listener instanceof Event) ? listener : new Event(type, listener, context),
+        _events = this._events;
 
     if (!_events) {
         _events = this._events = {};
     }
 
-    if (type instanceof Event) {
-        event = type;
-        _type = event.type;
-    } else {
-        event = new Event(type, listener, context);
-    }
-
-    if (!_events[_type]) {
-        _events[_type] = [];
+    if (!_events[type]) {
+        _events[type] = [];
     }
 
     if (_events.newListener) {
-        this.emit('newListener', _type, event.listener, event.context);
+        this.emit('newListener', type, event.listener, event.context);
     }
 
     if (event.context === this) {
         event.context = null;
     }
 
-    _events[_type].push(event);
+    _events[type].push(event);
 
     return this;
 };
@@ -178,8 +168,8 @@ EventEmitter.prototype.addListener = EventEmitter.prototype.on;
 
 /**
  * Устанавливает одноразовый обработчик события.
- * @param {String|Event} type Тип события.
- * @param {Function|EventEmitter} [listener] Обработчик события.
+ * @param {String} type Тип события.
+ * @param {Function|EventEmitter|Event} listener Обработчик события.
  * @param {Object|null} [context=this] Контекст выполнения обработчика.
  * @returns {EventEmitter}
  * @example
@@ -191,22 +181,16 @@ EventEmitter.prototype.addListener = EventEmitter.prototype.on;
  *   .emit('type');
  */
 EventEmitter.prototype.once = function (type, listener, context) {
-    var event;
+    var event = (listener instanceof Event) ? listener : new Event(type, listener, context);
+    event.isOnce = true;
 
-    if (type instanceof Event) {
-        type.isOnce = true;
-        event = type;
-    } else {
-        event = new Event(type, listener, context, true);
-    }
-
-    return this.on(event);
+    return this.on(type, event);
 };
 
 /**
  * Удаляет обработчик события.
  * @param {String} type Тип события.
- * @param {Function|Event|EventEmitter} [listener] Обработчик, который необходимо удалить.
+ * @param {Function|EventEmitter|Event} listener Обработчик, который необходимо удалить.
  * @returns {EventEmitter}
  */
 EventEmitter.prototype.off = function (type, listener) {
@@ -342,40 +326,40 @@ EventEmitter.prototype.listeners = function (type) {
  */
 EventEmitter.prototype.emit = function (type, args) {
     var
-        _events = this._events,
-        events = _events && _events[type],
-        length = events ? events.length : 0,
-        index = 0,
-        argsLength = arguments.length - 1,
+        events = this._events && this._events[type],
+        eventsLength = events ? events.length : 0,
+        argsLength = arguments.length,
+        index = argsLength-- && argsLength,
         event,
         current,
-        _stop,
         context,
         listener,
-        arg,
-        error = arguments[1];
+        _stop,
+        _args,
+        _arguments;
 
-    if (type === 'error' && !(events && length)) {
-        if (error instanceof Error) {
-            // Unhandled 'error' event
-            throw error;
+    if (!eventsLength) {
+        if (type === 'error') {
+            if (args instanceof Error) {
+                // Unhandled 'error' event
+                throw args;
+            } else {
+                throw new Error('Uncaught, unspecified "error" event.');
+            }
         } else {
-            throw new Error('Uncaught, unspecified "error" event.');
+            return false;
         }
     }
 
-    if (typeof events === 'undefined') {
-        return false;
-    }
+    if (index) {
+        _args = new Array(index);
+        _arguments = new Array(index + 1);
 
-    if (length && argsLength > 2) {
-        arg = new Array(argsLength);
-
-        while (index < argsLength) {
-            arg[index++] = arguments[index];
+        while (index) {
+            _arguments[index] = _args[index - 1] = arguments[index--];
         }
 
-        index = 0;
+        _arguments[0] = type;
     }
 
     _stop = stop;
@@ -383,8 +367,10 @@ EventEmitter.prototype.emit = function (type, args) {
 
     EventEmitter.current = this;
 
-    while (index < length) {
-        event = events[index++];
+    while (index++ < eventsLength) {
+        event = events[index];
+        listener = event.listener;
+        context = event.context == null ? this : event.context;
 
         EventEmitter.event = event;
 
@@ -392,29 +378,21 @@ EventEmitter.prototype.emit = function (type, args) {
             this.off(type, event);
         }
 
-        context = event.context == null ? this : event.context;
-        listener = event.listener;
-
         if (typeof listener === 'function') {
-            switch (argsLength) {
-                // fast cases
-                case 0:
-                    listener.call(context);
-                    break;
-                case 1:
-                    listener.call(context, arguments[1]);
-                    break;
-                case 2:
-                    listener.call(context, arguments[1], arguments[2]);
-                    break;
-                // slower
-                default:
-                    listener.apply(context, arg);
+            if (argsLength) {
+                listener.apply(context, _args);
+            } else {
+                listener.call(context);
             }
-        } else if (listener === this) {
-            throw new Error('Can\'t emit on itself');
+        } else if (typeof listener.emit === 'function') {
+            if (argsLength) {
+                _arguments[0] = event.type || type;
+                listener.emit.apply(listener, _arguments);
+            } else {
+                listener.emit(event.type || type);
+            }
         } else {
-            listener.emit.apply(listener, arguments);
+            throw new Error('Listener must be a function or EventEmitter');
         }
 
         if (stop === this) {
@@ -428,12 +406,27 @@ EventEmitter.prototype.emit = function (type, args) {
     return true;
 };
 
+/**
+ *
+ * @param {Function|EventEmitter} emitter
+ * @param {String} type
+ * @param {String} [alias=type]
+ * @returns {EventEmitter}
+ */
+EventEmitter.prototype.delegate = function (emitter, type, alias) {
+    if (!alias || type === alias) {
+        return this.on(type, emitter);
+    } else {
+        return this.on(type, new Event(alias, emitter));
+    }
+};
+
 EventEmitter.prototype._events = null;
 EventEmitter.prototype._maxListeners = null;
 
 /**
  * Конструктор объекта события.
- * @param {String} type {@link Event#type}
+ * @param {String|Number|null} type {@link Event#type}
  * @param {Function|EventEmitter} listener {@link Event#listener}
  * @param {Object|null} [context] {@link Event#context}
  * @param {Boolean} [isOnce] {@link Event#isOnce}
