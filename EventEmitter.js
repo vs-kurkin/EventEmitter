@@ -322,7 +322,7 @@ EventEmitter.prototype.listeners = function (type) {
  *     throw reason; // 'foo'
  *   })
  *   .emit('error', 'foo');
- *   @throws {Error} Бросает исключение, если генерируется событие error и на него не подписан ни один обработчик.
+ * @throws {Error} Бросает исключение, если генерируется событие error и на него не подписан ни один обработчик.
  */
 EventEmitter.prototype.emit = function (type, args) {
     var
