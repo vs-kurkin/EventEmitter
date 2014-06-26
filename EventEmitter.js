@@ -428,41 +428,53 @@ EventEmitter.prototype._maxListeners = null;
  * Конструктор объекта события.
  * @param {String|Number|null} type {@link Event#type}
  * @param {Function|EventEmitter} listener {@link Event#listener}
- * @param {Object|null} [context] {@link Event#context}
- * @param {Boolean} [isOnce] {@link Event#isOnce}
+ * @param {Object|null} [context=null] {@link Event#context}
+ * @param {Boolean} [isOnce=false] {@link Event#isOnce}
  * @name Event
  * @constructor
  * @returns {Event}
  * @throws {Error} Бросает исключение, если обработчик события не является функцией или объектом {@link EventEmitter}.
  */
 function Event(type, listener, context, isOnce) {
-    if (!(typeof listener === 'function' && typeof listener.emit === 'function')) {
+    if (typeof listener !== 'function' && typeof listener.emit !== 'function') {
         throw new Error('Listener must be a function or EventEmitter');
     }
 
-    /**
-     * Имя события.
-     * @type {String}
-     */
     this.type = type;
-    /**
-     * Функция - обработчик события.
-     * @type {Function|EventEmitter}
-     */
     this.listener = listener;
-    /**
-     * Контекст выполнения обработчика.
-     * @type {Object|null}
-     */
-    this.context = context;
-    /**
-     * Флаг, указывающий на то, что это событие одноразовое.
-     * @type {Boolean}
-     */
-    this.isOnce = isOnce;
+    this.context = context || null;
+    this.isOnce = isOnce || false;
 
     return this;
 }
+
+/**
+ * Имя события.
+ * @type {String}
+ * @default null
+ */
+Event.prototype.type = null;
+
+/**
+ * Обработчик события.
+ * @type {Function|EventEmitter}
+ * @default null
+ */
+Event.prototype.listener = null;
+
+/**
+ * Контекст выполнения обработчика.
+ * @type {Object|null}
+ * @default null
+ */
+Event.prototype.context = null;
+
+/**
+ * Флаг, указывающий на то, что это событие одноразовое.
+ * @type {Boolean}
+ * @default false
+ */
+Event.prototype.isOnce = false;
 
 /**
  * @name {EventEmitter.Event}
