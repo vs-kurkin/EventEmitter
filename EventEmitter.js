@@ -367,7 +367,7 @@ EventEmitter.prototype.emit = function (type, args) {
 
     EventEmitter.current = this;
 
-    while (index++ < eventsLength) {
+    while (index < eventsLength) {
         event = events[index];
         listener = event.listener;
         context = event.context == null ? this : event.context;
@@ -375,7 +375,10 @@ EventEmitter.prototype.emit = function (type, args) {
         EventEmitter.event = event;
 
         if (event.isOnce === true) {
+            eventsLength--;
             this.off(type, event);
+        } else {
+            index++;
         }
 
         if (typeof listener === 'function') {
