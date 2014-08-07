@@ -31,6 +31,14 @@ function EventEmitter() {
      * @private
      */
     this._maxListeners = EventEmitter.MAX_LISTENERS;
+
+    /**
+     * Аргументы текущего обработчика события.
+     * @type {Array}
+     * @default null
+     * @readonly
+     */
+    this.eventData = null;
 }
 
 /**
@@ -335,8 +343,7 @@ EventEmitter.prototype.emit = function (type, args) {
         context,
         listener,
         _stop,
-        _args,
-        _arguments;
+        eventData = new Array(index);
 
     if (!eventsLength) {
         if (type === 'error') {
@@ -351,15 +358,8 @@ EventEmitter.prototype.emit = function (type, args) {
         }
     }
 
-    if (index) {
-        _args = new Array(index);
-        _arguments = new Array(index + 1);
-
-        while (index) {
-            _arguments[index] = _args[index - 1] = arguments[index--];
-        }
-
-        _arguments[0] = type;
+    while (index) {
+        eventData[index - 1] = arguments[index--];
     }
 
     _stop = stop;
@@ -372,6 +372,7 @@ EventEmitter.prototype.emit = function (type, args) {
         listener = event.listener;
         context = event.context == null ? this : event.context;
 
+        this.eventData = eventData;
         EventEmitter.event = event;
 
         if (event.isOnce === true) {
@@ -383,14 +384,13 @@ EventEmitter.prototype.emit = function (type, args) {
 
         if (typeof listener === 'function') {
             if (argsLength) {
-                listener.apply(context, _args);
+                listener.apply(context, eventData);
             } else {
                 listener.call(context);
             }
         } else if (typeof listener.emit === 'function') {
             if (argsLength) {
-                _arguments[0] = event.type || type;
-                listener.emit.apply(listener, _arguments);
+                listener.emit.apply(listener, [event.type || type].concat(eventData));
             } else {
                 listener.emit(event.type || type);
             }
@@ -405,6 +405,7 @@ EventEmitter.prototype.emit = function (type, args) {
 
     stop = _stop;
     EventEmitter.current = current;
+    this.eventData = null;
 
     return true;
 };
