@@ -24,5 +24,8 @@
   "bugs": {
     "email": "b-vladi@cs-console.ru",
     "url": "https://github.com/B-Vladi/EventEmitter/issues"
+  },
+  "dependencies": {
+    "karma-phantomjs-launcher": "^0.1.4"
   }
 }
