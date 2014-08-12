@@ -12,11 +12,11 @@
     "node": "*"
   },
   "devDependencies": {
-    "jasmine-core": ">=2.0.0",
     "karma": ">=0.12.16",
-    "karma-jasmine": ">=0.1.5",
+    "karma-jasmine": ">=0.2",
     "karma-browserify": ">=0.2.1",
-    "browserify": "~3.x"
+    "browserify": "~3.x",
+    "karma-phantomjs-launcher": "^0.1.4"
   },
   "scripts": {
     "test": "node_modules/karma/bin/karma start karma.conf.js"
@@ -24,8 +24,5 @@
   "bugs": {
     "email": "b-vladi@cs-console.ru",
     "url": "https://github.com/B-Vladi/EventEmitter/issues"
-  },
-  "dependencies": {
-    "karma-phantomjs-launcher": "^0.1.4"
   }
 }
