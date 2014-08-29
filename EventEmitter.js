@@ -3,42 +3,19 @@
  * @fileOverview EventEmitter.
  */
 
-/**
- * Объект {@link EventEmitter}, выполнение обработчиков собития которого нужно остановить.
- * @default null
- * @type {EventEmitter}
- * @inner
- */
-var stop = null;
+var _eventStack = [];
+var _eventStackIndex = -1;
+var _currentEvent = null;
+var _currentEmitter = null;
 
 /**
  * Наделяет объект событийной моделью.
  * @constructor
  */
 function EventEmitter() {
-    /**
-     * Объект, в котором хранятся обработчики событий.
-     * @type {Object}
-     * @default null
-     * @private
-     */
     this._events = null;
-
-    /**
-     * Максимальное количество обработчиков для одного события.
-     * @type {Number}
-     * @default 10
-     * @private
-     */
     this._maxListeners = EventEmitter.MAX_LISTENERS;
-
-    /**
-     * Аргументы текущего обработчика события.
-     * @type {Array}
-     * @default null
-     * @readonly
-     */
-    this.eventData = null;
+    this._eventData = null;
 }
 
 /**
@@ -69,15 +46,8 @@ EventEmitter.EVENT_NEW_LISTENER = 'newListener';
 EventEmitter.EVENT_REMOVE_LISTENER = 'removeListener';
 
 /**
- * Объект {@link EventEmitter}, чьи ообработчики событий выполняются в текущий момент.
- * @default null
- * @type {EventEmitter}
- * @readonly
- */
-EventEmitter.current = null;
-
-/**
  * Останавливает выполнение обработчиков события.
+ * @param {String} [type]
  * @static
  * @example
  * var EventEmitter = require('EventEmitter');
@@ -86,7 +56,7 @@ EventEmitter.current = null;
  * emitter
  *   .on('event', function () {
  *      // Останавливаем дальнейшее выполнение обработчиков.
- *      this.stopEmit();
+ *      EventEmitter.stopEmit();
  *   })
  *   .on('event', function () {
  *      // Этот обработчик никогда не будет вызван.
@@ -94,13 +64,45 @@ EventEmitter.current = null;
  *   .emit('event');
  *   @returns {Boolean} Возвращает true, если выполнение обработчиков события было остановлено.
  */
-EventEmitter.prototype.stopEmit = function () {
-    if (EventEmitter.current === this) {
-        stop = this;
-        return true;
+EventEmitter.stopEmit = function (type) {
+    if (_eventStackIndex >= 0 && (!arguments.length || _currentEvent == type)) {
+        return _eventStack[_eventStackIndex] = true;
     }
 
     return false;
+};
+
+/**
+ * Объект, в котором хранятся обработчики событий.
+ * @type {Object}
+ * @default null
+ * @protected
+ */
+EventEmitter.prototype._events = null;
+
+/**
+ * Максимальное количество обработчиков для одного события.
+ * @type {Number}
+ * @default 10
+ * @private
+ */
+EventEmitter.prototype._maxListeners = 10;
+
+/**
+ * Аргументы текущего обработчика события.
+ * @type {Array}
+ * @default null
+ * @readonly
+ * @protected
+ */
+EventEmitter.prototype._eventData = null;
+
+/**
+ * @param {String} [type]
+ * @returns {Boolean}
+ */
+EventEmitter.prototype.stopEmit = function (type) {
+    return _currentEmitter === this ? EventEmitter.stopEmit(type) : false;
 };
 
 /**
@@ -339,10 +341,10 @@ EventEmitter.prototype.emit = function (type, args) {
         argsLength = arguments.length,
         index = argsLength-- && argsLength,
         event,
-        current,
         context,
         listener,
-        _stop,
+        currentEvent = _currentEvent,
+        currentEmitter = _currentEmitter,
         eventData = new Array(index);
 
     if (!eventsLength) {
@@ -362,18 +364,17 @@ EventEmitter.prototype.emit = function (type, args) {
         eventData[index - 1] = arguments[index--];
     }
 
-    _stop = stop;
-    current = EventEmitter.current;
-
-    EventEmitter.current = this;
+    _eventStackIndex = _eventStack.push(false) - 1;
+    _currentEmitter = this;
 
     while (index < eventsLength) {
         event = events[index];
         listener = event.listener;
         context = event.context == null ? this : event.context;
 
-        this.eventData = eventData;
-        EventEmitter.event = event;
+        _currentEvent = type;
+
+        this._eventData = eventData;
 
         if (event.isOnce === true) {
             eventsLength--;
@@ -398,14 +399,16 @@ EventEmitter.prototype.emit = function (type, args) {
             throw new Error('Listener must be a function or EventEmitter');
         }
 
-        if (stop === this) {
+        if (_eventStack[_eventStackIndex]) {
             break;
         }
     }
 
-    stop = _stop;
-    EventEmitter.current = current;
-    this.eventData = null;
+    _eventStack.length = _eventStackIndex--;
+    _currentEvent = currentEvent;
+    _currentEmitter = currentEmitter;
+
+    this._eventData = null;
 
     return true;
 };
@@ -424,9 +427,6 @@ EventEmitter.prototype.delegate = function (emitter, type, alias) {
         return this.on(type, new Event(alias, emitter));
     }
 };
-
-EventEmitter.prototype._events = null;
-EventEmitter.prototype._maxListeners = null;
 
 /**
  * Конструктор объекта события.
