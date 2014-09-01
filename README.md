@@ -132,7 +132,7 @@ new EventEmitter()
   .emit('event');
   
 function listener () {
-  this.stopEmit('error'); // true, будет остановлено тольлько событие error
+  this.stopEmit('error'); // true, будет остановлено только событие error
   new EventEmitter().stopEmit(); // false, другой экземпляр не останавливает выполнение
 }
 
