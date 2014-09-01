@@ -68,7 +68,14 @@ describe('Остановка выполнения обработчиков со�
 
         emitter
             .on('ready', function () {
-                EventEmitter.stopEmit();
+                expect(EventEmitter.stopEmit()).toBe(true);
+                expect(EventEmitter.stopEmit('ready')).toBe(true);
+                expect(EventEmitter.stopEmit('event')).toBe(false);
+
+                expect(this.stopEmit()).toBe(true);
+                expect(this.stopEmit('ready')).toBe(true);
+                expect(this.stopEmit('event')).toBe(false);
+
                 this.emit('event');
             })
             .on('event', function () {
@@ -83,5 +90,28 @@ describe('Остановка выполнения обработчиков со�
             .emit('ready');
 
         return expect(r).toBe('ab');
+    });
+
+    it('Остановка текущего стека выполнения', function () {
+        var emitter = new EventEmitter();
+        var r = '';
+
+        emitter
+            .on('ready', function () {
+                this.emit('event');
+            })
+            .on('event', function () {
+                r += 'a';
+                expect(EventEmitter.stopEmit()).toBe(true);
+            })
+            .on('event', function () {
+                r += 'b';
+            })
+            .on('ready', function () {
+                r += 'c';
+            })
+            .emit('ready');
+
+        return expect(r).toBe('ac');
     });
 });
