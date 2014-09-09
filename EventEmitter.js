@@ -213,11 +213,16 @@ EventEmitter.prototype.once = function (type, listener, context) {
  * @returns {EventEmitter}
  */
 EventEmitter.prototype.off = function (type, listener) {
+    var _events = this._events;
+
+    if (!(_events && _events[type])) {
+        return this;
+    }
+
     var
-        _events = this._events,
         events = _events[type],
         event,
-        length = events ? events.length : 0,
+        length = events.length,
         index = length,
         position = -1,
         isEvent = listener instanceof Event;
