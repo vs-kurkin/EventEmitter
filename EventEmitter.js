@@ -99,19 +99,17 @@ EventEmitter.prototype._eventData = null;
  * @param {String|Number} [type] Если передан тип и он не соответствует текущему типу события, выполнение не будет остановлено.
  * @example
  * var EventEmitter = require('EventEmitter');
- * var emitter1 = new EventEmitter();
- * var emitter2 = new EventEmitter();
  *
- * emitter
+ * new EventEmitter()
  *   .on('event', function () {
- *      emitter2.stopEmit(); // false
+ *      new EventEmitter().stopEmit(); // false
  *      this.stopEmit(); // true
  *   })
  *   .emit('event');
  * @returns {Boolean} Возвращает true, если выполнение обработчиков события было остановлено.
  */
 EventEmitter.prototype.stopEmit = function (type) {
-    return _currentEmitter === this ? EventEmitter.stopEmit(type) : false;
+    return _currentEmitter === this && EventEmitter.stopEmit(type);
 };
 
 /**
