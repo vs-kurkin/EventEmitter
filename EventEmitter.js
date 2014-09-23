@@ -3,42 +3,19 @@
  * @fileOverview EventEmitter.
  */
 
-/**
- * Объект {@link EventEmitter}, выполнение обработчиков собития которого нужно остановить.
- * @default null
- * @type {EventEmitter}
- * @inner
- */
-var stop = null;
+var _eventStack = [];
+var _eventStackIndex = -1;
+var _currentEvent = null;
+var _currentEmitter = null;
 
 /**
  * Наделяет объект событийной моделью.
  * @constructor
  */
 function EventEmitter() {
-    /**
-     * Объект, в котором хранятся обработчики событий.
-     * @type {Object}
-     * @default null
-     * @private
-     */
     this._events = null;
-
-    /**
-     * Максимальное количество обработчиков для одного события.
-     * @type {Number}
-     * @default 10
-     * @private
-     */
     this._maxListeners = EventEmitter.MAX_LISTENERS;
-
-    /**
-     * Аргументы текущего обработчика события.
-     * @type {Array}
-     * @default null
-     * @readonly
-     */
-    this.eventData = null;
+    this._eventData = null;
 }
 
 /**
@@ -69,44 +46,76 @@ EventEmitter.EVENT_NEW_LISTENER = 'newListener';
 EventEmitter.EVENT_REMOVE_LISTENER = 'removeListener';
 
 /**
- * Объект {@link EventEmitter}, чьи ообработчики событий выполняются в текущий момент.
- * @default null
- * @type {EventEmitter}
- * @readonly
- */
-EventEmitter.current = null;
-
-/**
  * Останавливает выполнение обработчиков события.
+ * @param {String|Number} [type] Если передан тип и он не соответствует текущему типу события, выполнение не будет остановлено.
  * @static
  * @example
- * var EventEmitter = require('EventEmitter');
- * var emitter = new EventEmitter();
- *
- * emitter
+ * new EventEmitter()
  *   .on('event', function () {
  *      // Останавливаем дальнейшее выполнение обработчиков.
- *      this.stopEmit();
+ *      EventEmitter.stopEmit(); // true
  *   })
  *   .on('event', function () {
  *      // Этот обработчик никогда не будет вызван.
  *   })
  *   .emit('event');
- *   @returns {Boolean} Возвращает true, если выполнение обработчиков события было остановлено.
+ * @returns {Boolean} Возвращает true, если выполнение обработчиков события было остановлено.
  */
-EventEmitter.prototype.stopEmit = function () {
-    if (EventEmitter.current === this) {
-        stop = this;
-        return true;
+EventEmitter.stopEmit = function (type) {
+    if (_eventStackIndex >= 0 && (!arguments.length || _currentEvent == type)) {
+        return _eventStack[_eventStackIndex] = true;
     }
 
     return false;
 };
 
 /**
+ * Объект, в котором хранятся обработчики событий.
+ * @type {Object}
+ * @default null
+ * @protected
+ */
+EventEmitter.prototype._events = null;
+
+/**
+ * Максимальное количество обработчиков для одного события.
+ * @type {Number}
+ * @default 10
+ * @private
+ */
+EventEmitter.prototype._maxListeners = 10;
+
+/**
+ * Аргументы текущего обработчика события.
+ * @type {Array}
+ * @default null
+ * @readonly
+ * @protected
+ */
+EventEmitter.prototype._eventData = null;
+
+/**
+ * Останавливает выполение обработчиков текущего события, если оно произошло на текущем объекте.
+ * @param {String|Number} [type] Если передан тип и он не соответствует текущему типу события, выполнение не будет остановлено.
+ * @example
+ * var EventEmitter = require('EventEmitter');
+ *
+ * new EventEmitter()
+ *   .on('event', function () {
+ *      new EventEmitter().stopEmit(); // false
+ *      this.stopEmit(); // true
+ *   })
+ *   .emit('event');
+ * @returns {Boolean} Возвращает true, если выполнение обработчиков события было остановлено.
+ */
+EventEmitter.prototype.stopEmit = function (type) {
+    return _currentEmitter === this && EventEmitter.stopEmit(type);
+};
+
+/**
  * Устанавливает максимальное количество обработчиков одного события.
- * @param {Number} count
- * @throws {Error} Бросает исключение при некорректном значении count
+ * @param {Number} count Новое количество обработчиков.
+ * @throws {Error} Бросает исключение при некорректном значении count.
  */
 EventEmitter.prototype.setMaxListeners = function(count) {
     if (typeof count !== 'number' || count < 0 || isNaN(count)) {
@@ -119,7 +128,7 @@ EventEmitter.prototype.setMaxListeners = function(count) {
 /**
  * Возвращает количество обработчиков определенного события.
  * @param {EventEmitter} emitter Объект {@link EventEmitter}.
- * @param {String} type Тип события
+ * @param {String} type Тип события.
  * @returns {number}
  */
 EventEmitter.listenerCount = function (emitter, type) {
@@ -202,11 +211,16 @@ EventEmitter.prototype.once = function (type, listener, context) {
  * @returns {EventEmitter}
  */
 EventEmitter.prototype.off = function (type, listener) {
+    var _events = this._events;
+
+    if (!(_events && _events[type])) {
+        return this;
+    }
+
     var
-        _events = this._events,
         events = _events[type],
         event,
-        length = events ? events.length : 0,
+        length = events.length,
         index = length,
         position = -1,
         isEvent = listener instanceof Event;
@@ -320,9 +334,9 @@ EventEmitter.prototype.listeners = function (type) {
 };
 
 /**
- * Генерирует событие. Аргументы, которые были переданы после имени события, будут переданы в обработчики событий.
+ * Генерирует событие.
  * @param {String} type Тип события.
- * @param {...*} [args] Аргументы, передаваемые в обработчик события.
+ * @param {...*} [args] Аргументы, которые будут переданы в обработчик события.
  * @returns {Boolean} Вернет true, если был успешно отработан хотя бы один обработчик события.
  * @example
  * new EventEmitter()
@@ -339,10 +353,10 @@ EventEmitter.prototype.emit = function (type, args) {
         argsLength = arguments.length,
         index = argsLength-- && argsLength,
         event,
-        current,
         context,
         listener,
-        _stop,
+        currentEvent = _currentEvent,
+        currentEmitter = _currentEmitter,
         eventData = new Array(index);
 
     if (!eventsLength) {
@@ -362,18 +376,17 @@ EventEmitter.prototype.emit = function (type, args) {
         eventData[index - 1] = arguments[index--];
     }
 
-    _stop = stop;
-    current = EventEmitter.current;
-
-    EventEmitter.current = this;
+    _eventStackIndex = _eventStack.push(false) - 1;
+    _currentEmitter = this;
 
     while (index < eventsLength) {
         event = events[index];
         listener = event.listener;
         context = event.context == null ? this : event.context;
 
-        this.eventData = eventData;
-        EventEmitter.event = event;
+        _currentEvent = type;
+
+        this._eventData = eventData;
 
         if (event.isOnce === true) {
             eventsLength--;
@@ -398,23 +411,38 @@ EventEmitter.prototype.emit = function (type, args) {
             throw new Error('Listener must be a function or EventEmitter');
         }
 
-        if (stop === this) {
+        if (_eventStack[_eventStackIndex]) {
             break;
         }
     }
 
-    stop = _stop;
-    EventEmitter.current = current;
-    this.eventData = null;
+    _eventStack.length = _eventStackIndex--;
+    _currentEvent = currentEvent;
+    _currentEmitter = currentEmitter;
+
+    this._eventData = null;
 
     return true;
 };
 
 /**
+ * Назначает делегирование события на другой экземпляр {@link EventEmitter}.
+ * @param {Function|EventEmitter} emitter Объект, на который необходимо делегировать событие type.
+ * @param {String} type Тип события, которое должно делегироваться.
+ * @param {String} [alias=type] Тип события, которое должно возникать на объекте emitter.
+ * @example
+ * var emitter1 = new EventEmitter();
+ * var emitter2 = new EventEmitter();
  *
- * @param {Function|EventEmitter} emitter
- * @param {String} type
- * @param {String} [alias=type]
+ * emitter2
+ *   .on('some', function (result) {
+ *     // result is 'foo'
+ *   });
+ *
+ * emitter1
+ *   .delegate(emitter2, 'event', 'some')
+ *   .emit('event', 'foo');
+ *
  * @returns {EventEmitter}
  */
 EventEmitter.prototype.delegate = function (emitter, type, alias) {
@@ -425,8 +453,15 @@ EventEmitter.prototype.delegate = function (emitter, type, alias) {
     }
 };
 
-EventEmitter.prototype._events = null;
-EventEmitter.prototype._maxListeners = null;
+/**
+ * Останавливает делегирование события на другой экземпляр {@link EventEmitter}.
+ * @param {Function|EventEmitter} emitter Объект, на который необходимо прекратить делегирование.
+ * @param {String} type Тип события.
+ * @returns {EventEmitter}
+ */
+EventEmitter.prototype.unDelegate = function (emitter, type) {
+    return this.off(type, emitter);
+};
 
 /**
  * Конструктор объекта события.
