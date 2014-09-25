@@ -27,12 +27,25 @@ describe('Check subscription/unsubscription', function() {
 
     describe('Check subscription ', function () {
         var name = 'TEST_EVENT',
+            oName = 'TEST_EVENT_OTHER',
             lOne,
             lTwo;
 
         beforeEach(function () {
             lOne = jasmine.createSpy('lOne');
             lTwo = jasmine.createSpy('lTwo');
+        });
+
+        it('Can call the \'addListener\' method with event type and handler', function () {
+            function subscribe() {
+                emitter.addListener(name, lOne);
+            }
+
+            expect(subscribe).not.toThrow();
+        });
+
+        it('Subscription method returns its EventEmitter object (allows chaining)', function () {
+            expect(emitter.addListener(name, lOne)).toBe(emitter);
         });
 
         it('A subscribed method is invoked on emit', function () {
