@@ -35,17 +35,17 @@ describe('Check subscription/unsubscription', function() {
             lTwo = jasmine.createSpy('lTwo');
         });
 
-        it('Can add a subscriber and then call it', function () {
-            emitter.on(name, lOne);
+        it('A subscribed method is invoked on emit', function () {
+            emitter.addListener(name, lOne);
             emitter.emit(name);
 
             expect(lOne.calls.count()).toBe(1);
         });
 
-        it('Can add more than one subscriber to an event', function () {
+        it('All subscribed methods are invoked on emit', function () {
 
-            emitter.on(name, lOne);
-            emitter.on(name, lTwo);
+            emitter.addListener(name, lOne);
+            emitter.addListener(name, lTwo);
 
             emitter.emit(name);
 
