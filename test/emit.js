@@ -8,10 +8,10 @@ describe('Checking emitting', function () {
     var emitter,
         name = 'TEST_EVENT',
         oName = 'TEST_EVENT_OTHER',
+        noName = 'TEST_EVENT_NONE',
         lOne,
         lTwo,
         oOne;
-
 
     beforeEach(function () {
         emitter = new EventEmitter();
@@ -29,6 +29,11 @@ describe('Checking emitting', function () {
 
     it('Has an \'emit\' method', function () {
         expect(typeof emitter.emit).toBe('function');
+    });
+
+    it('\'Emit\' returns true if an event has listeners and false otherwise', function () {
+        expect(emitter.emit(name)).toBe(true);
+        expect(emitter.emit(noName)).toBe(false);
     });
 
     it('Triggers listeners by invoking \'emit\'', function () {
