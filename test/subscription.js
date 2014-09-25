@@ -127,7 +127,7 @@ describe('Check subscription/unsubscription', function() {
         });
     });
 
-    describe('Check invocation context', function () {
+    describe('Passing invocation context in subscription', function () {
         var name = 'TEST_EVENT',
             ctxOne = {foo: 'bar'},
             ctxTwo = {baz: 'foo'},
@@ -139,17 +139,17 @@ describe('Check subscription/unsubscription', function() {
             lTwo = jasmine.createSpy('lTwo');
         });
 
-        it('Allows to pass an invocation context as an argument to event subscription', function () {
+        it('Can invoke the \'addListener\' method with a 3rd argument (context)', function () {
             function subscribe() {
-                emitter.on(name, lOne, ctxOne);
+                emitter.addListener(name, lOne, ctxOne);
             }
 
             expect(subscribe).not.toThrow();
         });
 
-        it('Invokes handler with the context specified in subscription', function () {
-            emitter.on(name, lOne, ctxOne);
-            emitter.on(name, lTwo, ctxTwo);
+        it('Invokes handler with the context specified as the 3rd argument of the \'addListener\' method', function () {
+            emitter.addListener(name, lOne, ctxOne);
+            emitter.addListener(name, lTwo, ctxTwo);
 
             expect(lOne.calls.any()).toBe(false);
             expect(lTwo.calls.any()).toBe(false);
