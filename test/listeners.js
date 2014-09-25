@@ -62,37 +62,45 @@ describe('Check listeners method', function () {
 
     });
 
-    it('Returns an array of listeners with right handlers and context', function () {
+    describe('Objects in return array', function () {
+        var listeners,
+            listener;
 
-        emitter.on(TEST_EVENT_NAME, stub, ctx);
+        beforeEach(function () {
+            emitter.on(TEST_EVENT_NAME, stub, ctx);
+            listeners = emitter.listeners(TEST_EVENT_NAME);
+            listener = listeners ? listeners[0] : null;
+        });
 
-        var l = emitter.listeners(TEST_EVENT_NAME);
+        it('Returns an array EventEmitter.Event objects', function () {
+            expect(listener instanceof EventEmitter.Event).toBe(true);
+        });
 
-        expect(l instanceof Array).toBe(true);
-        expect(l.length).toBe(1);
+        it('EventEmitter.Event object has the type property with the right value', function () {
+            expect(listener.type).toBe(TEST_EVENT_NAME);
+        });
 
-        var listener = l[0];
+        it('EventEmitter.Event object has the listener property with the right value', function () {
+            expect(listener.listener).toBe(stub);
+        });
 
-        expect(listener instanceof EventEmitter.Event).toBe(true);
-        expect(listener.type).toBe(TEST_EVENT_NAME);
-        expect(listener.listener).toBe(stub);
-        expect(listener.context).toBe(ctx);
+        it('EventEmitter.Event object has the context property with the right value', function () {
+            expect(listener.context).toBe(ctx);
+        });
 
+        it('Returns \'once\' listeners for \'once\' and normal event for normal subscription', function () {
+
+            emitter.once(OTHER_EVENT_NAME, stub);
+
+            var oListeners = emitter.listeners(OTHER_EVENT_NAME);
+            var oListener = oListeners ? oListeners[0] : null;
+
+            expect(oListener instanceof EventEmitter.Event).toBe(true);
+            expect(oListener.isOnce).toBe(true);
+
+            expect(listener.isOnce).toBe(false);
+
+        });
     });
 
-    it('Returns \'once\' listeners for \'once\' subscription', function () {
-
-        emitter.once(TEST_EVENT_NAME, stub);
-
-        var l = emitter.listeners(TEST_EVENT_NAME);
-
-        expect(l instanceof Array).toBe(true);
-        expect(l.length).toBe(1);
-
-        var listener = l[0];
-
-        expect(listener instanceof EventEmitter.Event).toBe(true);
-        expect(listener.isOnce).toBe(true);
-
-    });
 });
