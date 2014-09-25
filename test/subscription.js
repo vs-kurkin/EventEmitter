@@ -127,5 +127,42 @@ describe('Check subscription/unsubscription', function() {
         });
     });
 
+    describe('Check invocation context', function () {
+        var name = 'TEST_EVENT',
+            ctxOne = {foo: 'bar'},
+            ctxTwo = {baz: 'foo'},
+            lOne,
+            lTwo;
+
+        beforeEach(function () {
+            lOne = jasmine.createSpy('lOne');
+            lTwo = jasmine.createSpy('lTwo');
+        });
+
+        it('Allows to pass an invocation context as an argument to event subscription', function () {
+            function subscribe() {
+                emitter.on(name, lOne, ctxOne);
+            }
+
+            expect(subscribe).not.toThrow();
+        });
+
+        it('Invokes handler with the context specified in subscription', function () {
+            emitter.on(name, lOne, ctxOne);
+            emitter.on(name, lTwo, ctxTwo);
+
+            expect(lOne.calls.any()).toBe(false);
+            expect(lTwo.calls.any()).toBe(false);
+
+            emitter.emit(name);
+
+            expect(lOne.calls.count()).toBe(1);
+            expect(lTwo.calls.count()).toBe(1);
+
+            expect(lOne.calls.mostRecent().object).toBe(ctxOne);
+            expect(lTwo.calls.mostRecent().object).toBe(ctxTwo);
+        });
+    });
+
 });
 
