@@ -77,8 +77,32 @@ describe('Check subscription/unsubscription', function() {
             lOne = jasmine.createSpy('lOne');
             lTwo = jasmine.createSpy('lTwo');
 
-            emitter.on(name, lOne);
-            emitter.on(name, lTwo);
+            emitter.addListener(name, lOne);
+            emitter.addListener(name, lTwo);
+        });
+
+        it('Can call the \'removeListener\' method with event type and handler', function () {
+            function unsubscribe() {
+                emitter.removeListener(name, lOne);
+            }
+
+            expect(unsubscribe).not.toThrow();
+        });
+
+        it('Can call the \'removeAllListeners\' method with event type', function () {
+            function unsubscribe() {
+                emitter.removeAllListeners(name);
+            }
+
+            expect(unsubscribe).not.toThrow();
+        });
+
+        it('Can call the \'removeAllListeners\' method with no arguments', function () {
+            function unsubscribe() {
+                emitter.removeAllListeners();
+            }
+
+            expect(unsubscribe).not.toThrow();
         });
 
         it('Can remove a subscriber and it won\'t be subsequently called', function () {
