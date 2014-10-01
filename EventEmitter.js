@@ -109,7 +109,7 @@ EventEmitter.prototype._eventData = null;
  * @returns {Boolean} Возвращает true, если выполнение обработчиков события было остановлено.
  */
 EventEmitter.prototype.stopEmit = function (type) {
-    return _currentEmitter === this && EventEmitter.stopEmit(type);
+    return _currentEmitter === this && EventEmitter.stopEmit.apply(EventEmitter, arguments);
 };
 
 /**
