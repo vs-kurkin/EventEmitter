@@ -1,0 +1,27 @@
+{
+    "node": true,       //Node environment
+    "browser": true,    //Browser environment
+
+    "indent": 4,        //indent: 4 spaces
+    "camelcase": true,  //check camel case
+    "quotmark": true,   //enforce a single quotmark style (either single or double)
+    "trailing": true,   //disallow trailing whitespace
+    "white": true,      //disallow messy whitespace
+
+    "strict": true,     //enforce 'use strict'
+    "nonew": true,      //warn about using new for side effects
+    "nomen": true,      //disallow _ in var names
+    "curly": true,      //require {} for every block or scope (no one-line ifs)
+    "unused": true,     //warn about unused vars and function args
+    "noarg": true,      //prohibit usage of arguments.caller and arguments.callee
+    "forin": true,      //disallow for..in loops without hasOwnProperty
+    "noempty": true,    //disallow empty blocks
+    "eqeqeq": true,     //warn about unsafe comparisons
+    "eqnull": true,     //tolerate use of '== null'
+    "undef": true,      //require all variables to be declared before usage
+    "bitwise": true,    //disallow bitwise operators
+    "newcap": true,     //require capitalization in constructors
+    "immed": true,      //require immediate invocations to be wrapped in parentheses
+    "nonbsp": true,     //disallow unbreakable space (can break UTF-8)
+    "freeze": true      //disallow modification of native functions' prototypes
+}

@@ -1,27 +1,28 @@
 {
-    "name": "EventEmitter",
-    "author": "Vladislav Kurkin <b-vladi@cs-console.ru> (https://github.com/B-Vladi)",
-    "version": "0.1.5",
-    "main": "EventEmitter.js",
-    "license": "MIT",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/B-Vladi/EventEmitter"
-    },
-    "engines": {
-        "node": "*"
-    },
-    "devDependencies": {
-        "jasmine-core": ">=2.0.0",
-        "karma": ">=0.12.16",
-        "karma-jasmine": ">=0.1.5",
-        "karma-browserify": ">=4.1.2"
-    },
-    "scripts": {
-        "test": ""
-    },
-    "bugs": {
-        "email": "b-vladi@cs-console.ru",
-        "url": "https://github.com/B-Vladi/EventEmitter/issues"
-    }
+  "name": "EventEmitter",
+  "author": "Vladislav Kurkin <b-vladi@cs-console.ru> (https://github.com/B-Vladi)",
+  "version": "0.1.5",
+  "main": "EventEmitter.js",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/B-Vladi/EventEmitter"
+  },
+  "engines": {
+    "node": "*"
+  },
+  "devDependencies": {
+    "karma": ">=0.12.16",
+    "karma-jasmine": ">=0.2",
+    "karma-browserify": ">=0.2.1",
+    "browserify": "~3.x",
+    "karma-phantomjs-launcher": "^0.1.4"
+  },
+  "scripts": {
+    "test": "node_modules/karma/bin/karma start karma.conf.js"
+  },
+  "bugs": {
+    "email": "b-vladi@cs-console.ru",
+    "url": "https://github.com/B-Vladi/EventEmitter/issues"
+  }
 }
