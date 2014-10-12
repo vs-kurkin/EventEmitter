@@ -9,7 +9,11 @@ describe('Экспорт API', function () {
         return expect(typeof EventEmitter).toBe('function');
     });
 
-    it('EventEmitter.Event', function () {
+    it('EventEmitter.Listener', function () {
+        return expect(typeof EventEmitter.Listener).toBe('function');
+    });
+
+    it('EventEmitter.Listener', function () {
         return expect(typeof EventEmitter.Event).toBe('function');
     });
 

@@ -62,7 +62,7 @@ describe('Check delegate/unDelegate', function () {
             expect(lOther.calls.any()).toBe(false);
         });
 
-        it('Passes call arguments to the listener of the event to be delegated to', function () {
+        it('Passes call arguments to the callback of the event to be delegated to', function () {
             emitter.addListener(TEST_EVENT_NAME, lOne);
             oEmitter.addListener(TEST_EVENT_OTHER, lTwo);
 

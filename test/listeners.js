@@ -52,7 +52,7 @@ describe('Check listeners method', function () {
         expect(l instanceof Array).toBe(true);
         expect(l.length).toBe(1);
 
-        //Adding the same listener again
+        //Adding the same callback again
         emitter.on(TEST_EVENT_NAME, stub);
 
         l = emitter.listeners(TEST_EVENT_NAME);
@@ -72,19 +72,19 @@ describe('Check listeners method', function () {
             listener = listeners ? listeners[0] : null;
         });
 
-        it('Returns an array EventEmitter.Event objects', function () {
-            expect(listener instanceof EventEmitter.Event).toBe(true);
+        it('Returns an array EventEmitter.Listener objects', function () {
+            expect(listener instanceof EventEmitter.Listener).toBe(true);
         });
 
-        it('EventEmitter.Event object has the type property with the right value', function () {
+        it('EventEmitter.Listener object has the type property with the right value', function () {
             expect(listener.type).toBe(TEST_EVENT_NAME);
         });
 
-        it('EventEmitter.Event object has the listener property with the right value', function () {
-            expect(listener.listener).toBe(stub);
+        it('EventEmitter.Listener object has the callback property with the right value', function () {
+            expect(listener.callback).toBe(stub);
         });
 
-        it('EventEmitter.Event object has the context property with the right value', function () {
+        it('EventEmitter.Listener object has the context property with the right value', function () {
             expect(listener.context).toBe(ctx);
         });
 
@@ -95,7 +95,7 @@ describe('Check listeners method', function () {
             var oListeners = emitter.listeners(OTHER_EVENT_NAME);
             var oListener = oListeners ? oListeners[0] : null;
 
-            expect(oListener instanceof EventEmitter.Event).toBe(true);
+            expect(oListener instanceof EventEmitter.Listener).toBe(true);
             expect(oListener.isOnce).toBe(true);
 
             expect(listener.isOnce).toBe(false);
