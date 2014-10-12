@@ -7,7 +7,7 @@ EventEmitter
 Для этого были внедрены такие механизмы, как [контекст обработчиков событий](#context), [делегирование](#delegate) и [остановка выполнения обработчиков](#stopEmit).
 
 ##Отличия от оригинала:
-### Константы:
+### Стандартные события:
  * `EventEmitter.MAX_LISTENERS = 10`
  <br />Максимальное количество обработчиков события по-умолчанию.
  * `EventEmitter.EVENT_NEW_LISTENER = 'newListener'`
@@ -15,14 +15,22 @@ EventEmitter
  * `EventEmitter.EVENT_REMOVE_LISTENER = 'removeListener'`
  <br />Имя события, которое срабатывает при удалении обработчика.
  
+В обработчик события `EventEmitter.EVENT_NEW_LISTENER` передается три аргумента:
+ * `{String|Number} type`
+ <br />Тип события, на корое был добавлен обработчик.
+ * `{Function} callback`
+ <br />Функция-обработчик события.
+ * `{*} context`
+ <br />Контекст, в котором будет вызвана функция-обработчик.
+ 
 ### <a name="context"></a>Расширенное API подписки на события
-Методы подписки на события имеют расширенное API:
+Методы подписки на события имеют расширенное API, а так же новый метод `EventEmitter#off`:
 
- * `{EventEmitter} EventEmitter#on(type, listener[, context])`
  * `{EventEmitter} EventEmitter#addListener(type, listener[, context])`
+ * `{EventEmitter} EventEmitter#on(type, listener[, context])`
  * `{EventEmitter} EventEmitter#once(type, listener[, context])`
- * `{EventEmitter} EventEmitter#off(type, listener)`
  * `{EventEmitter} EventEmitter#removeListener(type, listener)`
+ * `{EventEmitter} EventEmitter#off(type, listener)`
 
 Здесь:
  * `{String|Number} type`
@@ -36,7 +44,7 @@ EventEmitter
  * `{Object|null} [context=this]`
  <br />Необязательный аргумент, задает контекст обработчика события.
  
-### Данные события
+### Объект события
 При вызове метода `EventEmitter#emit`, переданные параметры (кроме типа события) сохраняются в массиве `EventEmitter#_eventData`.
 Это означает, что по ходу выполнения события, можно изменять набор агрументов, которые передаются в обработчики:
 
@@ -109,23 +117,20 @@ emitter.on('event', listener);
 Стандартное API предполагает безоговорочное выполнение всех обработчиков событий.
 Возможность остановки выполнения дает дополнительную гибкость в написании логики обработчиков событий.
 
- * `{Boolean} EventEmitter.stopEmit([type])`
- <br />Останавливает выполнение обработчиков текущего события.
- Если был передан тип, выполнение будет остановлено только в том случае, если текущее событие соответствует переданному типу.
  * `{Boolean} EventEmitter#stopEmit([type])`
  <br />Останавливает выполнение обработчиков события текущего объекта.
  В этом методе так же доступна фильтрация по типу события.
  
-Данные методы возвращают `true`, если выполнение обработчиков было остановлено, либо `false` в противном случае.
+Метод возвращает `true`, если выполнение обработчиков было остановлено, либо `false` в противном случае.
  
 Несколько примеров:
 
 ```js
 new EventEmitter()
   .on('event', function () {
-    // Эта строка остановит любое текущее событие,
+    // Эта строка остановит любое событие,
     // не зависимо от типа или объекта, вызвавшего данное событие.
-    EventEmitter.stopEmit(); // true
+    this.stopEmit(); // true
   })
   .on('event', function () {
     // Этот обработчик никогда не будет вызван.
