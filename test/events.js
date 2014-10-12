@@ -74,15 +74,14 @@ describe('Checking events', function () {
         expect(listener.calls.any()).toBe(false);
     });
 
-    it('Don`t emit the \'removeListener\' event, if remove the listeners of the this event', function () {
-        var arg1 = function () {
-        };
-
+    it('Don`t emit the \'removeListener\' event, if remove latest the listeners of the this event', function () {
         emitter
             .on(eRemoveListener, listener)
-            .off(eRemoveListener, arg1);
+            .on(eRemoveListener, listener)
+            .off(eRemoveListener, listener)
+            .off(eRemoveListener, listener);
 
-        expect(listener.calls.any()).toBe(false);
+        expect(listener.calls.count()).toBe(1);
     });
 
     it('Emit the \'removeListener\' event, when removes all listeners', function () {
