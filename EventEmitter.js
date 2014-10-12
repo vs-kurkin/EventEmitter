@@ -154,22 +154,14 @@ EventEmitter.prototype.setMaxListeners = function (count) {
  */
 EventEmitter.prototype.on = function (type, listener, context) {
     var _listener = (listener instanceof Listener) ? listener : new Listener(type, listener, context);
-    var _events = this._events;
-
-    if (!_events) {
-        _events = this._events = {};
-    }
-
-    if (!_events[type]) {
-        _events[type] = [];
-    }
+    var _events = this._events || (this._events = {});
+    var listeners = _events[type] || (_events[type] = []);
 
     if (_events.newListener) {
         this.emit('newListener', type, _listener.callback, _listener.context == null ? this : _listener.context);
     }
 
-    _events[type].push(_listener);
-
+    listeners.push(_listener);
 
     return this;
 };
