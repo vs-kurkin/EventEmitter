@@ -67,7 +67,7 @@ EventEmitter.prototype._events = null;
  * Объект события.
  * @type {Event}
  * @default null
- * @protected
+ * @readonly
  */
 EventEmitter.prototype.event = null;
 
@@ -105,30 +105,6 @@ EventEmitter.prototype.stopEmit = function (type) {
 
 /**
  * Заменяет данные события, если оно есть.
- * @param {Array} data
- * @example
- * new EventEmitter()
- *   .on('event', function (data) {
- *     data; // 'foo'
- *     this.setEventData(['bar']);
- *   })
- *   .on('event', function (data) {
- *     data; // 'bar'
- *   })
- *   .emit('event', 'foo');
- */
-EventEmitter.prototype.setEventData = function (data) {
-    var event = this.event;
-
-    if (event && typeof data === 'object' && typeof data.length === 'number') {
-        event.data = data;
-    }
-
-    return this;
-};
-
-/**
- * Заменяет данные события, если оно есть.
  * @param {...*} [args]
  * @example
  * new EventEmitter()
@@ -141,7 +117,7 @@ EventEmitter.prototype.setEventData = function (data) {
  *   })
  *   .emit('event', 'foo');
  */
-EventEmitter.prototype.updateEventData = function (args) {
+EventEmitter.prototype.setEventData = function (args) {
     var length = arguments.length;
     var data = this.event && this.event.data;
 
@@ -190,14 +166,11 @@ EventEmitter.prototype.on = function (type, listener, context) {
     }
 
     if (_events.newListener) {
-        this.emit('newListener', type, _listener.callback, _listener.context || this);
-    }
-
-    if (_listener.context === this) {
-        _listener.context = null;
+        this.emit('newListener', type, _listener.callback, _listener.context == null ? this : _listener.context);
     }
 
     _events[type].push(_listener);
+
 
     return this;
 };
@@ -242,42 +215,40 @@ EventEmitter.prototype.once = function (type, listener, context) {
  */
 EventEmitter.prototype.off = function (type, listener) {
     var _events = this._events;
+    var listeners = _events && _events[type];
 
-    if (!(_events && _events[type])) {
+    if (!listeners) {
         return this;
     }
 
     var
-        events = _events[type],
         _listener,
-        length = events.length,
+        length = listeners.length,
         index = length,
-        position = -1,
         isListener = listener instanceof Listener;
 
-    if (typeof listener === 'function' || typeof listener.emit === 'function' || isListener) {
+    if (isListener || typeof listener === 'function' || typeof listener.emit === 'function') {
         while (index--) {
-            _listener = isListener ? events[index] : events[index].callback;
+            _listener = listeners[index];
 
-            if (_listener === listener) {
-                position = index;
+            if ((isListener ? _listener : _listener.callback) === listener) {
                 break;
             }
         }
 
-        if (position < 0) {
+        if (index < 0) {
             return this;
         }
 
         if (length === 1) {
-            events.length = 0;
-            delete _events[type];
+            listeners.length = 0;
+            delete listeners[type];
         } else {
-            events.splice(position, 1);
+            listeners.splice(index, 1);
         }
 
         if (_events.removeListener) {
-            this.emit('removeListener', type, listener);
+            this.emit('removeListener', type, isListener ? listener.callback : listener);
         }
     } else {
         throw new Error(LISTENER_TYPE_ERROR);
@@ -384,15 +355,12 @@ EventEmitter.prototype.emit = function (type, args) {
     var listener;
     var callback;
     var listeners;
+    var currentEvent;
     var event;
 
-    if (length === 0) {
+    if (!length) {
         if (type === 'error') {
-            if (args instanceof Error) {
-                throw args;
-            } else {
-                throw new Error('Uncaught, unspecified "error" event.');
-            }
+            throw (args instanceof Error) ? args : new Error('Uncaught, unspecified "error" event.');
         } else {
             return false;
         }
@@ -407,6 +375,7 @@ EventEmitter.prototype.emit = function (type, args) {
 
     index = length;
     listeners = new Array(length);
+    currentEvent = this.event;
     event = this.event = new Event(type, data);
 
     while (index) {
@@ -432,7 +401,7 @@ EventEmitter.prototype.emit = function (type, args) {
         }
     }
 
-    this.event = null;
+    this.event = currentEvent;
 
     return true;
 };
@@ -493,8 +462,8 @@ function Listener(type, callback, context, isOnce) {
 
     this.type = type;
     this.callback = callback;
-    this.context = context || null;
-    this.isOnce = isOnce || false;
+    this.context = context;
+    this.isOnce = Boolean(isOnce);
 
     return this;
 }
@@ -540,8 +509,8 @@ function Event(type, data) {
 }
 
 /**
- *
  * @type {String|Number}
+ * @readonly
  */
 Event.prototype.type = null;
 
