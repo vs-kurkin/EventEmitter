@@ -5,99 +5,70 @@ var EventEmitter = require('../EventEmitter');
 /* globals describe, it, expect */
 
 describe('Остановка выполнения обработчиков события', function () {
-    it('Остановка выполнения текущего события', function () {
-        var emitter = new EventEmitter();
-        var emitter2 = new EventEmitter();
-        var r;
+    var lOne;
+    var lTwo;
+    var emitter1;
+    var emitter2;
 
-        emitter
+    beforeEach(function () {
+        emitter1 = new EventEmitter();
+        emitter2 = new EventEmitter();
+
+        lOne = jasmine.createSpy('lOne');
+        lTwo = jasmine.createSpy('lTwo');
+    });
+
+    it('Остановка события', function () {
+        emitter1
             .on('event', function () {
-                expect(EventEmitter.stopEmit()).toBe(true);
-                expect(this.stopEmit()).toBe(true);
-                expect(this.stopEmit('event')).toBe(true);
+                expect(emitter1.stopEmit()).toBe(true);
+                expect(emitter1.stopEmit('event')).toBe(true);
+            })
+            .on('event', lOne)
+            .emit('event');
 
+        expect(lOne.calls.any()).toBe(false);
+    });
+
+    it('Событие не должно останавливаться, если метод был вызван другим экземпляром', function () {
+        emitter1
+            .on('event', function () {
                 expect(emitter2.stopEmit()).toBe(false);
                 expect(emitter2.stopEmit('event')).toBe(false);
-
-                r = true;
             })
-            .on('event', function () {
-                r = false;
-            })
-            .emit('event');
+            .on('event', lOne);
 
-        expect(r).toBe(true);
+        emitter1.emit('event');
+
+        expect(lOne.calls.count()).toBe(1);
     });
 
-    it('Остановка выполнения другого события', function () {
-        var emitter = new EventEmitter();
-        var r;
-
-        emitter
+    it('Указание конкретного имени события, которое необходимо остановить', function () {
+        emitter1
             .on('event', function () {
-                expect(EventEmitter.stopEmit('some')).toBe(false);
-                expect(this.stopEmit('some')).toBe(false);
-
-                r = true;
+                expect(emitter1.stopEmit('other')).toBe(false);
             })
-            .on('event', function () {
-                r = false;
-            })
+            .on('event', lOne)
             .emit('event');
 
-        expect(r).toBe(false);
+        expect(lOne.calls.count()).toBe(1);
     });
 
     it('Остановка текущего стека выполнения', function () {
-        var emitter = new EventEmitter();
-        var r = '';
-
-        emitter
+        emitter1
             .on('ready', function () {
-                expect(EventEmitter.stopEmit()).toBe(true);
-                expect(EventEmitter.stopEmit('ready')).toBe(true);
-                expect(EventEmitter.stopEmit('event')).toBe(false);
-
-                expect(this.stopEmit()).toBe(true);
-                expect(this.stopEmit('ready')).toBe(true);
-                expect(this.stopEmit('event')).toBe(false);
+                expect(emitter1.stopEmit()).toBe(true);
+                expect(emitter1.stopEmit('ready')).toBe(true);
+                expect(emitter1.stopEmit('event')).toBe(false);
 
                 this.emit('event');
             })
-            .on('event', function () {
-                r += 'a';
-            })
-            .on('event', function () {
-                r += 'b';
-            })
-            .on('ready', function () {
-                r += 'c';
-            })
+            .on('event', lOne)
+            .on('event', lOne)
+            .on('ready', lTwo)
             .emit('ready');
 
-        return expect(r).toBe('ab');
-    });
-
-    it('Остановка текущего стека выполнения', function () {
-        var emitter = new EventEmitter();
-        var r = '';
-
-        emitter
-            .on('ready', function () {
-                this.emit('event');
-            })
-            .on('event', function () {
-                r += 'a';
-                expect(EventEmitter.stopEmit()).toBe(true);
-            })
-            .on('event', function () {
-                r += 'b';
-            })
-            .on('ready', function () {
-                r += 'c';
-            })
-            .emit('ready');
-
-        return expect(r).toBe('ac');
+        expect(lOne.calls.count()).toBe(2);
+        expect(lTwo.calls.any()).toBe(false);
     });
 });

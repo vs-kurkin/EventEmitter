@@ -1,6 +1,6 @@
 'use strict';
 
-var EventEmitter = require('../EventEmitter.js');
+var EventEmitter = require('../EventEmitter');
 
 /* global describe, it, expect, beforeEach, jasmine */
 
@@ -27,7 +27,6 @@ describe('Check subscription/unsubscription', function() {
 
     describe('Check subscription ', function () {
         var name = 'TEST_EVENT',
-            oName = 'TEST_EVENT_OTHER',
             lOne,
             lTwo;
 

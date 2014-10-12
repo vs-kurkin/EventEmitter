@@ -1,6 +1,6 @@
 'use strict';
 
-var EventEmitter = require('../EventEmitter.js');
+var EventEmitter = require('../EventEmitter');
 
 /* global describe, it, expect, beforeEach, jasmine */
 
@@ -87,7 +87,6 @@ describe('Checking emitting', function () {
 
         expect(lOne).toHaveBeenCalledWith(arg1, arg2, arg3);
         expect(lTwo).toHaveBeenCalledWith(arg1, arg2, arg3);
-
     });
 
 });
