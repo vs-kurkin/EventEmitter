@@ -153,9 +153,8 @@ EventEmitter.prototype.setMaxListeners = function (count) {
  * @returns {EventEmitter}
  */
 EventEmitter.prototype.on = function (type, listener, context) {
-    var
-        _listener = (listener instanceof Listener) ? listener : new Listener(type, listener, context),
-        _events = this._events;
+    var _listener = (listener instanceof Listener) ? listener : new Listener(type, listener, context);
+    var _events = this._events;
 
     if (!_events) {
         _events = this._events = {};
@@ -214,6 +213,7 @@ EventEmitter.prototype.once = function (type, listener, context) {
  * @returns {EventEmitter}
  */
 EventEmitter.prototype.off = function (type, listener) {
+    var _listener;
     var _events = this._events;
     var listeners = _events && _events[type];
 
@@ -221,11 +221,9 @@ EventEmitter.prototype.off = function (type, listener) {
         return this;
     }
 
-    var
-        _listener,
-        length = listeners.length,
-        index = length,
-        isListener = listener instanceof Listener;
+    var length = listeners.length;
+    var index = length;
+    var isListener = listener instanceof Listener;
 
     if (isListener || typeof listener === 'function' || typeof listener.emit === 'function') {
         while (index--) {
@@ -272,11 +270,10 @@ EventEmitter.prototype.removeListener = EventEmitter.prototype.off;
  * @returns {EventEmitter}
  */
 EventEmitter.prototype.removeAllListeners = function (type) {
-    var
-        _events = this._events,
-        key,
-        listeners,
-        index;
+    var _events = this._events;
+    var key;
+    var listeners;
+    var index;
 
     if (!_events) {
         return this;
@@ -502,6 +499,12 @@ Listener.prototype.isOnce = false;
  */
 EventEmitter.Listener = Listener;
 
+/**
+ * Конструктор объекта сбытия.
+ * @param {String|Number} type
+ * @param {Array} data
+ * @constructor
+ */
 function Event(type, data) {
     this.type = type;
     this.data = data;
