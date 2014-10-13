@@ -153,4 +153,5 @@ new EventEmitter()
 
 ### Тесты
 Unit-тесты: `npm install; npm test`.
+</br>
 Сравнительные тесты производительности: `cd tests/benchmark; npm install; npm test`.
