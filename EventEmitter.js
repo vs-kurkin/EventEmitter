@@ -381,7 +381,11 @@ EventEmitter.prototype.emit = function (type, args) {
     index = length;
     listeners = new Array(length);
     currentEvent = this.event;
-    event = this.event = new Event(type, data);
+    event = this.event = {
+        type: type,
+        data: data,
+        stop: false
+    };
 
     while (index) {
         listeners[--index] = events[index];
@@ -448,43 +452,6 @@ EventEmitter.prototype.delegate = function (type, emitter, alias) {
  * @returns {EventEmitter}
  */
 EventEmitter.prototype.unDelegate = EventEmitter.prototype.off;
-
-/**
- * Конструктор объекта сбытия.
- * @param {String|Number} type
- * @param {Array} data
- * @constructor
- */
-function Event(type, data) {
-    this.type = type;
-    this.data = data;
-    this.stop = false;
-}
-
-/**
- * @type {String|Number}
- * @readonly
- */
-Event.prototype.type = null;
-
-/**
- *
- * @type {Array}
- */
-Event.prototype.data = null;
-
-/**
- *
- * @type {Boolean}
- * @default false
- */
-Event.prototype.stop = false;
-
-/**
- * @name {EventEmitter.Event}
- * @type {Event}
- */
-EventEmitter.Event = Event;
 
 /**
  * Exports: {@link EventEmitter}
