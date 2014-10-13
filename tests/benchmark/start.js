@@ -43,7 +43,7 @@ var suits = [
         }
     },
     {
-        name: 'Create, subscribe & all unsubscribe',
+        name: 'Create, subscribe one listener & all unsubscribe',
         native: function () {
             new NativeEventEmitter()
                 .on(EVENT_NAME, listener)
@@ -53,6 +53,15 @@ var suits = [
             new EventEmitter()
                 .on(EVENT_NAME, listener)
                 .removeAllListeners(EVENT_NAME);
+        }
+    },
+    {
+        name: 'Create, subscribe three listener & all unsubscribe',
+        native: function () {
+            createNativeWithThreeListeners().removeAllListeners(EVENT_NAME);
+        },
+        custom: function () {
+            createWithThreeListeners().removeAllListeners(EVENT_NAME);
         }
     },
     {
@@ -88,7 +97,7 @@ var suits = [
             onStart: createNativeWithThreeListeners
         },
         custom: {
-            onStart: createWithTreeListeners
+            onStart: createWithThreeListeners
         }
     },
     {
@@ -100,7 +109,7 @@ var suits = [
             onStart: createNativeWithThreeListeners
         },
         custom: {
-            onStart: createWithTreeListeners
+            onStart: createWithThreeListeners
         }
     },
     {
@@ -112,7 +121,29 @@ var suits = [
             onStart: createNativeWithThreeListeners
         },
         custom: {
-            onStart: createWithTreeListeners
+            onStart: createWithThreeListeners
+        }
+    },
+    {
+        name: 'Create, subscribe and emit one once listeners with three params',
+        native: function () {
+            new NativeEventEmitter()
+                .once(EVENT_NAME, listener)
+                .emit(EVENT_NAME, 1, 2, 3);
+        },
+        custom: function () {
+            new EventEmitter()
+                .once(EVENT_NAME, listener)
+                .emit(EVENT_NAME, 1, 2, 3);
+        }
+    },
+    {
+        name: 'Create, subscribe and emit three once listeners with five params',
+        native: function () {
+            createNativeWithThreeListeners().emit(EVENT_NAME, 1, 2, 3, 4, 5);
+        },
+        custom: function () {
+            createWithThreeListeners().emit(EVENT_NAME, 1, 2, 3, 4, 5);
         }
     },
     {
@@ -172,14 +203,14 @@ function createNativeEmitter() {
     return emitter = new NativeEventEmitter().on(EVENT_NAME, listener);
 }
 
-function createWithTreeListeners() {
-    createEmitter()
+function createWithThreeListeners() {
+    return createEmitter()
         .on(EVENT_NAME, listener)
         .on(EVENT_NAME, listener);
 }
 
 function createNativeWithThreeListeners() {
-    createNativeEmitter()
+    return createNativeEmitter()
         .on(EVENT_NAME, listener)
         .on(EVENT_NAME, listener);
 }
