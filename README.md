@@ -17,7 +17,7 @@ EventEmitter
  
 В обработчик события `EventEmitter.EVENT_NEW_LISTENER` передается три аргумента:
  * `{String|Number} type`
- <br />Тип события, на корое был добавлен обработчик.
+ <br />Тип события, на которое был добавлен обработчик.
  * `{Function} callback`
  <br />Функция-обработчик события.
  * `{*} context`
