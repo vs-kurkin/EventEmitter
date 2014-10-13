@@ -11,7 +11,7 @@ var LISTENER_TYPE_ERROR = 'Listener must be a function or EventEmitter';
 function EventEmitter() {
     this._events = null;
     this._maxListeners = this._maxListeners;
-    this.event = null;
+    this._event = null;
 }
 
 /**
@@ -65,9 +65,9 @@ EventEmitter.prototype._events = null;
  * Объект события.
  * @type {Event}
  * @default null
- * @readonly
+ * @private
  */
-EventEmitter.prototype.event = null;
+EventEmitter.prototype._event = null;
 
 /**
  * Максимальное количество обработчиков для одного события.
@@ -93,9 +93,9 @@ EventEmitter.prototype._maxListeners = EventEmitter.MAX_LISTENERS;
  * @returns {Boolean} Возвращает true, если выполнение обработчиков события было остановлено.
  */
 EventEmitter.prototype.stopEmit = function (type) {
-    var event = this.event;
+    var _event = this._event;
 
-    if (event && (!arguments.length || event.type == type)) {
+    if (_event && (!arguments.length || _event.type == type)) {
         return event.stop = true;
     }
 
@@ -118,7 +118,7 @@ EventEmitter.prototype.stopEmit = function (type) {
  */
 EventEmitter.prototype.setEventData = function (args) {
     var length = arguments.length;
-    var data = this.event && this.event.data;
+    var data = this._event && this._event.data;
 
     if (data) {
         data.length = length;
@@ -361,7 +361,7 @@ EventEmitter.prototype.emit = function (type, args) {
     var callback;
     var listeners;
     var currentEvent;
-    var event;
+    var _event;
 
     if (!length) {
         if (type === 'error') {
@@ -380,8 +380,8 @@ EventEmitter.prototype.emit = function (type, args) {
 
     index = length;
     listeners = new Array(length);
-    currentEvent = this.event;
-    event = this.event = {
+    currentEvent = this._event;
+    _event = this._event = {
         type: type,
         data: data,
         stop: false
@@ -400,17 +400,17 @@ EventEmitter.prototype.emit = function (type, args) {
         }
 
         if (isFunction(callback)) {
-            call(callback, listener.context == null ? this : listener.context, event.data);
+            call(callback, listener.context == null ? this : listener.context, _event.data);
         } else {
-            emit(callback, listener.type || type, event.data);
+            emit(callback, listener.type || type, _event.data);
         }
 
-        if (event.stop) {
+        if (_event.stop) {
             break;
         }
     }
 
-    this.event = currentEvent;
+    this._event = currentEvent;
 
     return true;
 };
