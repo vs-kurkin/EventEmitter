@@ -81,10 +81,10 @@ emitter
 ```
 
 Для подобных ситуаций существует два метода:
- * `{EventEmitter} EventEmitter#delegate(emitter, type[, alias=type])`
+ * `{EventEmitter} EventEmitter#delegate(type, emitter[, alias=type])`
  <br />Делегирует событие `type` на объект `emitter`.
   Необязательным аргументом задается имя события, которое будет вызвано на объекте `emitter`.
- * `{EventEmitter} EventEmitter#unDelegate(emitter, type)`
+ * `{EventEmitter} EventEmitter#unDelegate(type, emitter)`
  <br />Снимает делегирование события `type` на объект `emitter`.
  
 Вышепреведенный пример теперь можно записать так:
