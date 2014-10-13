@@ -1,6 +1,6 @@
 'use strict';
 
-var EventEmitter = require('../EventEmitter');
+var EventEmitter = require('../../EventEmitter');
 
 /* globals describe, it, expect, beforeEach */
 describe('Check listeners method', function () {
@@ -9,7 +9,6 @@ describe('Check listeners method', function () {
 
     function stub () { }
     var ctx = {};
-
     var emitter;
 
     beforeEach(function () {
@@ -20,10 +19,11 @@ describe('Check listeners method', function () {
         expect(typeof emitter.listeners).toBe('function');
     });
 
-    it('Returns \'undefined\' if called without arguments', function () {
+    it('Returns an empty array if called without arguments', function () {
         var l = emitter.listeners();
 
-        expect(typeof l).toBe('undefined');
+        expect(l instanceof Array).toBe(true);
+        expect(l.length).toBe(0);
     });
 
     it('Returns an empty array if no listeners are assigned to emitter (for the specified event type)', function () {
@@ -34,7 +34,6 @@ describe('Check listeners method', function () {
     });
 
     it('Returns an empty array if some listeners are assigned to emitter, but none for the specified event type', function () {
-
         emitter.on(OTHER_EVENT_NAME, stub);
 
         var l = emitter.listeners(TEST_EVENT_NAME);
@@ -44,7 +43,6 @@ describe('Check listeners method', function () {
     });
 
     it('Returns an array of correct length', function () {
-
         emitter.on(TEST_EVENT_NAME, stub);
 
         var l = emitter.listeners(TEST_EVENT_NAME);
@@ -59,12 +57,11 @@ describe('Check listeners method', function () {
 
         expect(l instanceof Array).toBe(true);
         expect(l.length).toBe(2);
-
     });
 
-    describe('Objects in return array', function () {
-        var listeners,
-            listener;
+    describe('Functions in return array', function () {
+        var listeners;
+        var listener;
 
         beforeEach(function () {
             emitter.on(TEST_EVENT_NAME, stub, ctx);
@@ -72,34 +69,8 @@ describe('Check listeners method', function () {
             listener = listeners ? listeners[0] : null;
         });
 
-        it('Returns an array EventEmitter.Listener objects', function () {
-            expect(listener instanceof EventEmitter.Listener).toBe(true);
-        });
-
-        it('EventEmitter.Listener object has the type property with the right value', function () {
-            expect(listener.type).toBe(TEST_EVENT_NAME);
-        });
-
-        it('EventEmitter.Listener object has the callback property with the right value', function () {
-            expect(listener.callback).toBe(stub);
-        });
-
-        it('EventEmitter.Listener object has the context property with the right value', function () {
-            expect(listener.context).toBe(ctx);
-        });
-
-        it('Returns \'once\' listeners for \'once\' and normal event for normal subscription', function () {
-
-            emitter.once(OTHER_EVENT_NAME, stub);
-
-            var oListeners = emitter.listeners(OTHER_EVENT_NAME);
-            var oListener = oListeners ? oListeners[0] : null;
-
-            expect(oListener instanceof EventEmitter.Listener).toBe(true);
-            expect(oListener.isOnce).toBe(true);
-
-            expect(listener.isOnce).toBe(false);
-
+        it('Returns an array Function objects', function () {
+            expect(typeof listener).toBe('function');
         });
     });
 

@@ -1,6 +1,6 @@
 'use strict';
 
-var EventEmitter = require('../EventEmitter');
+var EventEmitter = require('../../EventEmitter');
 
 /* global describe, it, expect, beforeEach, jasmine */
 
