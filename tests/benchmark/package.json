@@ -1,0 +1,11 @@
+{
+    "name" : "event-emitter-speed-comparison",
+    "version" : "0.0.1",
+    "dependencies": {
+        "benchmark" : ""
+    },
+    "scripts": {
+        "test": "node start.js"
+    },
+    "private" : true
+}

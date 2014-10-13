@@ -150,3 +150,7 @@ new EventEmitter()
 
 ### Домены
 Не реализованы.
+
+### Тесты
+Unit-тесты: `npm install; npm test`.
+Сравнительные тесты производительности: `cd tests/benchmark; npm install; npm test`.
