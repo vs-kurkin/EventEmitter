@@ -99,7 +99,7 @@ listener
   });
 
 emitter
-  .delegate(listener, 'event', 'someEvent')
+  .delegate('event', listener, 'someEvent')
   .emit('event', 'bar');
 ```
 
