@@ -152,15 +152,23 @@ EventEmitter.prototype.setMaxListeners = function (count) {
  * @returns {EventEmitter}
  */
 EventEmitter.prototype.on = function (type, listener, context) {
-    var _listener = new Listener(type, listener, context);
+    if (!(isFunction(listener) || isFunction(listener.emit))) {
+        throw new Error(LISTENER_TYPE_ERROR);
+    }
+
     var _events = this._events || (this._events = {});
     var listeners = _events[type] || (_events[type] = new Array(0));
 
     if (_events.newListener) {
-        this.emit('newListener', type, _listener.callback, _listener.context == null ? this : _listener.context);
+        this.emit('newListener', type, listener, context == null ? this : context);
     }
 
-    listeners[listeners.length] = _listener;
+    listeners[listeners.length] = {
+        type: type,
+        callback: listener,
+        context: context,
+        isOnce: false
+    };
 
     return this;
 };
@@ -212,10 +220,10 @@ EventEmitter.prototype.off = function (type, listener) {
         return this;
     }
 
-    var length = listeners.length;
-    var index = length;
-
     if (isFunction(listener) || isFunction(listener.emit)) {
+        var length = listeners.length;
+        var index = length;
+
         while (index--) {
             if (listeners[index].callback === listener) {
                 break;
@@ -262,16 +270,17 @@ EventEmitter.prototype.removeAllListeners = function (type) {
     var key;
     var listeners;
     var index;
+    var callback;
 
     if (!_events) {
         return this;
     }
 
-    if (!this._events.removeListener) {
+    if (!_events.removeListener) {
         if (arguments.length === 0) {
             this._events = {};
-        } else if (this._events[type]) {
-            delete this._events[type];
+        } else if (_events[type]) {
+            delete _events[type];
         }
 
         return this;
@@ -279,9 +288,11 @@ EventEmitter.prototype.removeAllListeners = function (type) {
 
     if (arguments.length === 0) {
         for (key in _events) {
-            if (key !== 'removeListener' && _events.hasOwnProperty(key)) {
-                this.removeAllListeners(key);
+            if (key === 'removeListener') {
+                continue;
             }
+
+            this.removeAllListeners(key);
         }
 
         this.removeAllListeners('removeListener');
@@ -290,12 +301,17 @@ EventEmitter.prototype.removeAllListeners = function (type) {
         return this;
     }
 
-    listeners = this._events[type];
+    listeners = _events[type];
     index = listeners.length;
 
-    while (index--) {
-        this.off(type, listeners[index].callback);
+    while (index) {
+        callback = listeners[--index].callback;
+        listeners.length = index;
+
+        this.emit('removeListener', type, callback);
     }
+
+    delete _events[type];
 
     return this;
 };
@@ -397,8 +413,8 @@ EventEmitter.prototype.emit = function (type, args) {
 
 /**
  * Назначает делегирование события на другой экземпляр {@link EventEmitter}.
- * @param {EventEmitter} emitter Объект, на который необходимо делегировать событие type.
  * @param {String} type Тип события, которое должно делегироваться.
+ * @param {EventEmitter} emitter Объект, на который необходимо делегировать событие type.
  * @param {String} [alias=type] Тип события, которое должно возникать на объекте emitter.
  * @example
  * var emitter1 = new EventEmitter();
@@ -415,7 +431,7 @@ EventEmitter.prototype.emit = function (type, args) {
  *
  * @returns {EventEmitter}
  */
-EventEmitter.prototype.delegate = function (emitter, type, alias) {
+EventEmitter.prototype.delegate = function (type, emitter, alias) {
     this.on(type, emitter);
 
     if (!(alias == null || alias === type)) {
@@ -427,70 +443,11 @@ EventEmitter.prototype.delegate = function (emitter, type, alias) {
 
 /**
  * Останавливает делегирование события на другой экземпляр {@link EventEmitter}.
- * @param {EventEmitter} emitter Объект, на который необходимо прекратить делегирование.
  * @param {String} type Тип события.
+ * @param {EventEmitter} emitter Объект, на который необходимо прекратить делегирование.
  * @returns {EventEmitter}
  */
-EventEmitter.prototype.unDelegate = function (emitter, type) {
-    return this.off(type, emitter);
-};
-
-/**
- * Конструктор обработчика события.
- * @param {String|Number|null} type {@link Listener#type}
- * @param {Function|EventEmitter} callback {@link Listener#callback}
- * @param {Object|null} [context=null] {@link Listener#context}
- * @name Listener
- * @constructor
- * @returns {Listener}
- * @throws {Error} Бросает исключение, если обработчик события не является функцией или объектом {@link EventEmitter}.
- */
-function Listener(type, callback, context) {
-    if (!(isFunction(callback) || isFunction(callback.emit))) {
-        throw new Error(LISTENER_TYPE_ERROR);
-    }
-
-    this.type = type;
-    this.callback = callback;
-    this.context = context;
-    this.isOnce = false;
-
-    return this;
-}
-
-/**
- * Имя события.
- * @type {String}
- * @default null
- */
-Listener.prototype.type = null;
-
-/**
- * Обработчик события.
- * @type {Function|EventEmitter}
- * @default null
- */
-Listener.prototype.callback = null;
-
-/**
- * Контекст выполнения обработчика.
- * @type {Object|null}
- * @default null
- */
-Listener.prototype.context = null;
-
-/**
- * Флаг, указывающий на то, что это событие одноразовое.
- * @type {Boolean}
- * @default false
- */
-Listener.prototype.isOnce = false;
-
-/**
- * @name {EventEmitter.Listener}
- * @type {Listener}
- */
-EventEmitter.Listener = Listener;
+EventEmitter.prototype.unDelegate = EventEmitter.prototype.off;
 
 /**
  * Конструктор объекта сбытия.

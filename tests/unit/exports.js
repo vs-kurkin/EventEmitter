@@ -9,10 +9,6 @@ describe('Check exports', function () {
         return expect(typeof EventEmitter).toBe('function');
     });
 
-    it('EventEmitter.Listener', function () {
-        return expect(typeof EventEmitter.Listener).toBe('function');
-    });
-
     it('EventEmitter.Event', function () {
         return expect(typeof EventEmitter.Event).toBe('function');
     });

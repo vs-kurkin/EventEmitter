@@ -37,7 +37,7 @@ describe('Check delegate/unDelegate', function () {
 
             lOne.calls.reset();
 
-            emitter.delegate(oEmitter, TEST_EVENT_NAME);
+            emitter.delegate(TEST_EVENT_NAME, oEmitter);
             emitter.emit(TEST_EVENT_NAME);
 
             expect(lOne.calls.count()).toBe(1);
@@ -52,7 +52,7 @@ describe('Check delegate/unDelegate', function () {
 
             oEmitter.addListener(TEST_EVENT_NAME, lOther);
 
-            emitter.delegate(oEmitter, TEST_EVENT_NAME, TEST_EVENT_OTHER);
+            emitter.delegate(TEST_EVENT_NAME, oEmitter, TEST_EVENT_OTHER);
             emitter.emit(TEST_EVENT_NAME);
 
             expect(lOne.calls.count()).toBe(1);
@@ -68,7 +68,7 @@ describe('Check delegate/unDelegate', function () {
 
             var args = [1, false, 'foo', { bar: function baz() {}}];
 
-            emitter.delegate(oEmitter, TEST_EVENT_NAME, TEST_EVENT_OTHER);
+            emitter.delegate(TEST_EVENT_NAME, oEmitter, TEST_EVENT_OTHER);
 
             emitter.emit.apply(emitter, [TEST_EVENT_NAME].concat(args));
 
@@ -85,15 +85,15 @@ describe('Check delegate/unDelegate', function () {
             emitter.addListener(TEST_EVENT_NAME, lOne);
             oEmitter.addListener(TEST_EVENT_OTHER, lTwo);
 
-            emitter.delegate(oEmitter, TEST_EVENT_NAME, TEST_EVENT_OTHER);
-            emitter.delegate(oEmitter, TEST_EVENT_OTHER);
+            emitter.delegate(TEST_EVENT_NAME, oEmitter, TEST_EVENT_OTHER);
+            emitter.delegate(TEST_EVENT_OTHER, oEmitter);
 
             emitter.emit(TEST_EVENT_NAME);
 
             expect(lOne.calls.count()).toBe(1);
             expect(lTwo.calls.count()).toBe(1);
 
-            emitter.unDelegate(oEmitter, TEST_EVENT_NAME);
+            emitter.unDelegate(TEST_EVENT_NAME, oEmitter);
 
             emitter.emit(TEST_EVENT_NAME);
 
