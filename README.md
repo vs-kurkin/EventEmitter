@@ -105,8 +105,8 @@ emitter
 
 Стоит добавить, что следующие строки:
 ```js
-emitter.delegate(listener, 'event');
-emitter.delegate(listener, 'event', 'event');
+emitter.delegate('event', listener);
+emitter.delegate('event', listener, 'event');
 ```
 эквивалентны записи:
 ```js
