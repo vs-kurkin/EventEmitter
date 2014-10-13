@@ -392,7 +392,7 @@ EventEmitter.prototype.emit = function (type, args) {
         callback = listener.callback;
 
         if (listener.isOnce === true) {
-            this.off(type, listener);
+            this.off(type, callback);
         }
 
         if (isFunction(callback)) {
