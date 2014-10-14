@@ -26,9 +26,9 @@ describe('Check subscription/unsubscription', function() {
     });
 
     describe('Check subscription ', function () {
-        var name = 'TEST_EVENT',
-            lOne,
-            lTwo;
+        var name = 'TEST_EVENT';
+        var lOne;
+        var lTwo;
 
         beforeEach(function () {
             lOne = jasmine.createSpy('lOne');
@@ -68,9 +68,9 @@ describe('Check subscription/unsubscription', function() {
     });
 
     describe('Check unsubscription', function () {
-        var name = 'TEST_EVENT',
-            lOne,
-            lTwo;
+        var name = 'TEST_EVENT';
+        var lOne;
+        var lTwo;
 
         beforeEach(function () {
             lOne = jasmine.createSpy('lOne');
@@ -164,11 +164,11 @@ describe('Check subscription/unsubscription', function() {
     });
 
     describe('Passing invocation context in subscription', function () {
-        var name = 'TEST_EVENT',
-            ctxOne = {foo: 'bar'},
-            ctxTwo = {baz: 'foo'},
-            lOne,
-            lTwo;
+        var name = 'TEST_EVENT';
+        var ctxOne = {foo: 'bar'};
+        var ctxTwo = {baz: 'foo'};
+        var lOne;
+        var lTwo;
 
         beforeEach(function () {
             lOne = jasmine.createSpy('lOne');

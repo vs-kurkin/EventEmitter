@@ -36,27 +36,27 @@ describe('Check listeners method', function () {
     it('Returns an empty array if some listeners are assigned to emitter, but none for the specified event type', function () {
         emitter.on(OTHER_EVENT_NAME, stub);
 
-        var l = emitter.listeners(TEST_EVENT_NAME);
+        var listeners = emitter.listeners(TEST_EVENT_NAME);
 
-        expect(l instanceof Array).toBe(true);
-        expect(l.length).toBe(0);
+        expect(listeners instanceof Array).toBe(true);
+        expect(listeners.length).toBe(0);
     });
 
     it('Returns an array of correct length', function () {
         emitter.on(TEST_EVENT_NAME, stub);
 
-        var l = emitter.listeners(TEST_EVENT_NAME);
+        var listeners = emitter.listeners(TEST_EVENT_NAME);
 
-        expect(l instanceof Array).toBe(true);
-        expect(l.length).toBe(1);
+        expect(listeners instanceof Array).toBe(true);
+        expect(listeners.length).toBe(1);
 
         //Adding the same callback again
         emitter.on(TEST_EVENT_NAME, stub);
 
-        l = emitter.listeners(TEST_EVENT_NAME);
+        listeners = emitter.listeners(TEST_EVENT_NAME);
 
-        expect(l instanceof Array).toBe(true);
-        expect(l.length).toBe(2);
+        expect(listeners instanceof Array).toBe(true);
+        expect(listeners.length).toBe(2);
     });
 
     describe('Functions in return array', function () {

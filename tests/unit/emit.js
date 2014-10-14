@@ -5,13 +5,13 @@ var EventEmitter = require('../../EventEmitter');
 /* global describe, it, expect, beforeEach, jasmine */
 
 describe('Checking emitting', function () {
-    var emitter,
-        name = 'TEST_EVENT',
-        oName = 'TEST_EVENT_OTHER',
-        noName = 'TEST_EVENT_NONE',
-        lOne,
-        lTwo,
-        oOne;
+    var emitter;
+    var name = 'TEST_EVENT';
+    var oName = 'TEST_EVENT_OTHER';
+    var noName = 'TEST_EVENT_NONE';
+    var lOne;
+    var lTwo;
+    var oOne;
 
     beforeEach(function () {
         emitter = new EventEmitter();
@@ -62,8 +62,8 @@ describe('Checking emitting', function () {
     });
 
     it('Passes argument to listeners as the second parameter of \'emit\'', function () {
-        var arg1 = { foo: 'bar', baz: 123, xyz: false},
-            arg2 = 'simple string';
+        var arg1 = { foo: 'bar', baz: 123, xyz: false};
+        var arg2 = 'simple string';
 
         emitter.emit(name, arg1);
 
@@ -79,9 +79,9 @@ describe('Checking emitting', function () {
     });
 
     it('Passes several arguments to listeners as parameters of \'emit\'', function () {
-        var arg1 = { foo: 'bar', baz: 123, xyz: false},
-            arg2 = 'simple string',
-            arg3 = 12345;
+        var arg1 = { foo: 'bar', baz: 123, xyz: false};
+        var arg2 = 'simple string';
+        var arg3 = 12345;
 
         emitter.emit(name, arg1, arg2, arg3);
 

@@ -5,12 +5,12 @@ var EventEmitter = require('../../EventEmitter');
 /* globals describe, it, expect, beforeEach, jasmine */
 
 describe('Check delegate/unDelegate', function () {
-    var TEST_EVENT_NAME = 'test',
-        TEST_EVENT_OTHER = 'other',
-        lOne,
-        lTwo;
-
-    var emitter, oEmitter;
+    var TEST_EVENT_NAME = 'test';
+    var TEST_EVENT_OTHER = 'other';
+    var lOne;
+    var lTwo;
+    var emitter;
+    var oEmitter;
 
     beforeEach(function () {
         emitter = new EventEmitter();

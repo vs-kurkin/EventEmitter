@@ -5,9 +5,8 @@ var EventEmitter = require('../../EventEmitter');
 /* globals describe, it, expect, beforeEach */
 
 describe('Check listenerCount', function () {
-    var TEST_EVENT_NAME = 'test',
-        OTHER_EVENT_NAME = 'other';
-
+    var TEST_EVENT_NAME = 'test';
+    var OTHER_EVENT_NAME = 'other';
     var emitter;
 
     beforeEach(function () {
