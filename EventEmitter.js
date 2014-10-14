@@ -65,7 +65,7 @@ EventEmitter.prototype._events = null;
  * Объект события.
  * @type {Event}
  * @default null
- * @private
+ * @protected
  */
 EventEmitter.prototype._event = null;
 
@@ -123,8 +123,8 @@ EventEmitter.prototype.setEventData = function (args) {
     if (data) {
         data.length = length;
 
-        while (length--) {
-            data[length] = arguments[length];
+        while (length) {
+            data[--length] = arguments[length];
         }
     }
 
