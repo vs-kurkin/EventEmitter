@@ -4,7 +4,7 @@ var EventEmitter = require('../../EventEmitter');
 
 /* globals describe, it, expect */
 
-describe('Остановка выполнения обработчиков события', function () {
+describe('Stopping the execution of event handlers', function () {
     var lOne;
     var lTwo;
     var emitter1;
@@ -20,7 +20,7 @@ describe('Остановка выполнения обработчиков со�
         lTwo = jasmine.createSpy('lTwo');
     });
 
-    it('Остановка события', function () {
+    it('Stopping events', function () {
         emitter1
             .on(EVENT_NAME, function () {
                 expect(emitter1.stopEmit()).toBe(true);
@@ -31,7 +31,7 @@ describe('Остановка выполнения обработчиков со�
         expect(lOne.calls.any()).toBe(false);
     });
 
-    it('Остановка события с указаниет типа', function () {
+    it('Stopping events with specified type', function () {
         emitter1
             .on(EVENT_NAME, function () {
                 expect(emitter1.stopEmit(EVENT_NAME)).toBe(true);
@@ -42,7 +42,7 @@ describe('Остановка выполнения обработчиков со�
         expect(lOne.calls.any()).toBe(false);
     });
 
-    it('Событие не должно останавливаться, если переданный тип не соответствует текущему', function () {
+    it('Event should not stop, if the passed type does not match the current', function () {
         emitter1
             .on(EVENT_NAME, function () {
                 expect(emitter1.stopEmit(OTHER_EVENT_NAME)).toBe(false);
@@ -53,7 +53,7 @@ describe('Остановка выполнения обработчиков со�
         expect(lOne.calls.count()).toBe(1);
     });
 
-    it('Событие не должно останавливаться, если метод был вызван другим экземпляром', function () {
+    it('Event should not stop unless method is called by another instance', function () {
         emitter1
             .on(EVENT_NAME, function () {
                 expect(emitter2.stopEmit()).toBe(false);
@@ -65,7 +65,7 @@ describe('Остановка выполнения обработчиков со�
         expect(lOne.calls.count()).toBe(1);
     });
 
-    it('Событие не должно останавливаться, если метод был вызван другим экземпляром с типом события', function () {
+    it('Event should not stop unless method is called by another instance with indication of type of event', function () {
         emitter1
             .on(EVENT_NAME, function () {
                 expect(emitter2.stopEmit(EVENT_NAME)).toBe(false);
@@ -77,7 +77,7 @@ describe('Остановка выполнения обработчиков со�
         expect(lOne.calls.count()).toBe(1);
     });
 
-    it('Указание конкретного имени события, которое необходимо остановить', function () {
+    it('Specifying a custom name of the event, which must be stopped', function () {
         emitter1
             .on(EVENT_NAME, function () {
                 expect(emitter1.stopEmit('other')).toBe(false);
@@ -88,7 +88,7 @@ describe('Остановка выполнения обработчиков со�
         expect(lOne.calls.count()).toBe(1);
     });
 
-    it('Остановка текущего стека выполнения', function () {
+    it('Stop only current event call stack', function () {
         emitter1
             .on(OTHER_EVENT_NAME, function () {
                 expect(emitter1.stopEmit()).toBe(true);
