@@ -10,8 +10,8 @@ var LISTENER_TYPE_ERROR = 'Listener must be a function or EventEmitter';
  */
 function EventEmitter() {
     this._events = null;
-    this._maxListeners = this._maxListeners;
     this._event = null;
+    this._maxListeners = this._maxListeners;
 }
 
 /**
