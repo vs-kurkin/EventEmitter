@@ -96,7 +96,7 @@ EventEmitter.prototype.stopEmit = function (type) {
     var _event = this._event;
 
     if (_event && (!arguments.length || _event.type == type)) {
-        return event.stop = true;
+        return _event.stop = true;
     }
 
     return false;
