@@ -9,6 +9,8 @@ describe('Остановка выполнения обработчиков со�
     var lTwo;
     var emitter1;
     var emitter2;
+    var EVENT_NAME = 'event';
+    var OTHER_EVENT_NAME = 'ready';
 
     beforeEach(function () {
         emitter1 = new EventEmitter();
@@ -20,53 +22,85 @@ describe('Остановка выполнения обработчиков со�
 
     it('Остановка события', function () {
         emitter1
-            .on('event', function () {
+            .on(EVENT_NAME, function () {
                 expect(emitter1.stopEmit()).toBe(true);
-                expect(emitter1.stopEmit('event')).toBe(true);
             })
-            .on('event', lOne)
-            .emit('event');
+            .on(EVENT_NAME, lOne)
+            .emit(EVENT_NAME);
 
         expect(lOne.calls.any()).toBe(false);
     });
 
+    it('Остановка события с указаниет типа', function () {
+        emitter1
+            .on(EVENT_NAME, function () {
+                expect(emitter1.stopEmit(EVENT_NAME)).toBe(true);
+            })
+            .on(EVENT_NAME, lOne)
+            .emit(EVENT_NAME);
+
+        expect(lOne.calls.any()).toBe(false);
+    });
+
+    it('Событие не должно останавливаться, если переданный тип не соответствует текущему', function () {
+        emitter1
+            .on(EVENT_NAME, function () {
+                expect(emitter1.stopEmit(OTHER_EVENT_NAME)).toBe(false);
+            })
+            .on(EVENT_NAME, lOne)
+            .emit(EVENT_NAME);
+
+        expect(lOne.calls.count()).toBe(1);
+    });
+
     it('Событие не должно останавливаться, если метод был вызван другим экземпляром', function () {
         emitter1
-            .on('event', function () {
+            .on(EVENT_NAME, function () {
                 expect(emitter2.stopEmit()).toBe(false);
-                expect(emitter2.stopEmit('event')).toBe(false);
             })
-            .on('event', lOne);
+            .on(EVENT_NAME, lOne);
 
-        emitter1.emit('event');
+        emitter1.emit(EVENT_NAME);
+
+        expect(lOne.calls.count()).toBe(1);
+    });
+
+    it('Событие не должно останавливаться, если метод был вызван другим экземпляром с типом события', function () {
+        emitter1
+            .on(EVENT_NAME, function () {
+                expect(emitter2.stopEmit(EVENT_NAME)).toBe(false);
+            })
+            .on(EVENT_NAME, lOne);
+
+        emitter1.emit(EVENT_NAME);
 
         expect(lOne.calls.count()).toBe(1);
     });
 
     it('Указание конкретного имени события, которое необходимо остановить', function () {
         emitter1
-            .on('event', function () {
+            .on(EVENT_NAME, function () {
                 expect(emitter1.stopEmit('other')).toBe(false);
             })
-            .on('event', lOne)
-            .emit('event');
+            .on(EVENT_NAME, lOne)
+            .emit(EVENT_NAME);
 
         expect(lOne.calls.count()).toBe(1);
     });
 
     it('Остановка текущего стека выполнения', function () {
         emitter1
-            .on('ready', function () {
+            .on(OTHER_EVENT_NAME, function () {
                 expect(emitter1.stopEmit()).toBe(true);
-                expect(emitter1.stopEmit('ready')).toBe(true);
-                expect(emitter1.stopEmit('event')).toBe(false);
+                expect(emitter1.stopEmit(OTHER_EVENT_NAME)).toBe(true);
+                expect(emitter1.stopEmit(EVENT_NAME)).toBe(false);
 
-                this.emit('event');
+                this.emit(EVENT_NAME);
             })
-            .on('event', lOne)
-            .on('event', lOne)
-            .on('ready', lTwo)
-            .emit('ready');
+            .on(EVENT_NAME, lOne)
+            .on(EVENT_NAME, lOne)
+            .on(OTHER_EVENT_NAME, lTwo)
+            .emit(OTHER_EVENT_NAME);
 
         expect(lOne.calls.count()).toBe(2);
         expect(lTwo.calls.any()).toBe(false);
