@@ -132,6 +132,44 @@ EventEmitter.prototype.setEventData = function (args) {
 };
 
 /**
+ * Возвращает текущие данные события в виде массива.
+ * @returns {Array|null}
+ * @example
+ * new EventEmitter()
+ *   .on('event', function () {
+ *     this.getEventData(); // ['foo', 'bar'];
+ *   })
+ *   .emit('event', 'foo', 'bar');
+ */
+EventEmitter.prototype.getEventData = function () {
+    var data;
+    var length;
+    var result;
+
+    if (this._event) {
+        data = this._event.data;
+        length = data.length;
+        result = new Array(length);
+
+        while (length) {
+            result[--length] = data[length];
+        }
+
+        return result;
+    } else {
+        return null;
+    }
+};
+
+/**
+ * Возвращает текущий тип события.
+ * @returns {String|Number|null}
+ */
+EventEmitter.prototype.getEventType = function () {
+    return this._event && this._event.type;
+};
+
+/**
  * Устанавливает максимальное количество обработчиков одного события.
  * @param {Number} count Новое количество обработчиков.
  * @throws {Error} Бросает исключение при некорректном значении count.

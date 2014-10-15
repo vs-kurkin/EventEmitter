@@ -2,7 +2,7 @@
 
 var EventEmitter = require('../../EventEmitter');
 
-/* globals describe, it, expect, beforeEach, jasmine */
+/* globals describe, it, expect, beforeEach */
 
 describe('Check setEventData', function () {
     var TEST_EVENT_NAME = 'test';
@@ -25,7 +25,7 @@ describe('Check setEventData', function () {
         expect(emitter.setEventData()).toBe(emitter);
     });
 
-    it('Change a data for a current event', function () {
+    it('Change the data for the current event', function () {
         emitter
             .on(TEST_EVENT_NAME, function (foo) {
                 expect(arguments.length).toBe(1);
@@ -40,7 +40,7 @@ describe('Check setEventData', function () {
             .emit(TEST_EVENT_NAME, 'foo');
     });
 
-    it('Change a data for a other event', function () {
+    it('Change the data for the other event', function () {
         emitter
             .on(TEST_EVENT_NAME, function (foo) {
                 expect(foo).toBe('foo');
@@ -59,7 +59,7 @@ describe('Check setEventData', function () {
             .emit(TEST_EVENT_NAME, 'foo');
     });
 
-    it('Clear a event data', function () {
+    it('Clear the data of the event', function () {
         emitter
             .on(TEST_EVENT_NAME, function () {
                 expect(arguments.length).toBe(1);
@@ -69,5 +69,47 @@ describe('Check setEventData', function () {
                 expect(arguments.length).toBe(0);
             })
             .emit(TEST_EVENT_NAME, 'foo');
-    })
+    });
+
+    it('Get the data of the event', function () {
+        var arg1 = 'foo';
+        var arg2 = {};
+        var arg3 = 123;
+
+        emitter
+            .on(TEST_EVENT_NAME, function () {
+                expect(this).toBe(emitter);
+
+                var data = this.getEventData();
+
+                expect(data instanceof Array).toBe(true);
+                expect(data.length).toBe(3);
+                expect(data[0]).toBe(arg1);
+                expect(data[1]).toBe(arg2);
+                expect(data[2]).toBe(arg3);
+            })
+            .emit('event', arg1, arg2, arg3);
+    });
+
+    it('Get the data of the event after changes', function () {
+        var arg1 = 'foo';
+        var arg2 = {};
+        var arg3 = 123;
+
+        emitter
+            .on(TEST_EVENT_NAME, function () {
+                this.setEventData('bar');
+
+                var data = this.getEventData();
+
+                expect(data instanceof Array).toBe(true);
+                expect(data.length).toBe(1);
+                expect(data[0]).toBe('bar');
+            })
+            .emit('event', arg1, arg2, arg3);
+    });
+
+    it('Get the empty data of the event', function () {
+        expect(emitter.getEventData()).toBeNull();
+    });
 });
