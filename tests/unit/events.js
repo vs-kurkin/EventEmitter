@@ -16,7 +16,7 @@ describe('Checking events', function () {
         listener = jasmine.createSpy('listener');
     });
 
-    it('Checking the constants', function () {
+    it('EventEmitter exports \'EVENT_NEW_LISTENER\' and \'EVENT_REMOVE_LISTENER\' properties', function () {
         expect(typeof eNewListener).toBe('string');
         expect(typeof eRemoveListener).toBe('string');
         expect(eRemoveListener !== eNewListener).toBe(true);

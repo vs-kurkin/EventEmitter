@@ -13,6 +13,10 @@ describe('Check getEventType', function () {
         emitter = new EventEmitter();
     });
 
+    it('EventEmitter objects export \'getEventType\' method', function () {
+        expect(typeof emitter.getEventType).toBe('function');
+    });
+
     it('Get the name of the event', function () {
         emitter
             .on(TEST_EVENT_NAME, function () {

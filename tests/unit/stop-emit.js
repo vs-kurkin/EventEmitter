@@ -20,6 +20,10 @@ describe('Stopping the execution of event handlers', function () {
         lTwo = jasmine.createSpy('lTwo');
     });
 
+    it('EventEmitter objects export \'stopEmit\' method', function () {
+        expect(typeof emitter1.stopEmit).toBe('function');
+    });
+
     it('Stopping events', function () {
         emitter1
             .on(EVENT_NAME, function () {
