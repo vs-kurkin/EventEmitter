@@ -259,27 +259,7 @@ EventEmitter.prototype.off = function (type, listener) {
     }
 
     if (isFunction(listener) || isFunction(listener.emit)) {
-        var length = listeners.length;
-        var index = length;
-
-        while (index--) {
-            if (listeners[index].callback === listener) {
-                break;
-            }
-        }
-
-        if (index < 0) {
-            return this;
-        }
-
-        if (length === 1) {
-            listeners.length = 0;
-            delete listeners[type];
-        } else {
-            listeners.splice(index, 1);
-        }
-
-        if (_events.removeListener) {
+        if (removeListener(type, listeners, listener) && _events.removeListener) {
             this.emit('removeListener', type, listener);
         }
     } else {
@@ -455,8 +435,8 @@ EventEmitter.prototype.emit = function (type, args) {
 
 /**
  * Назначает делегирование события на другой экземпляр {@link EventEmitter}.
- * @param {String} type Тип события, которое должно делегироваться.
  * @param {EventEmitter} emitter Объект, на который необходимо делегировать событие type.
+ * @param {String} type Тип события, которое должно делегироваться.
  * @param {String} [alias=type] Тип события, которое должно возникать на объекте emitter.
  * @example
  * var emitter1 = new EventEmitter();
@@ -473,23 +453,25 @@ EventEmitter.prototype.emit = function (type, args) {
  *
  * @returns {EventEmitter}
  */
-EventEmitter.prototype.delegate = function (type, emitter, alias) {
+EventEmitter.prototype.delegate = function (emitter, type, alias) {
     this.on(type, emitter);
 
     if (!(alias == null || alias === type)) {
         getLastListener(this, type).type = alias;
-
-        return this;
     }
+
+    return this;
 };
 
 /**
  * Останавливает делегирование события на другой экземпляр {@link EventEmitter}.
- * @param {String} type Тип события.
  * @param {EventEmitter} emitter Объект, на который необходимо прекратить делегирование.
+ * @param {String} type Тип события.
  * @returns {EventEmitter}
  */
-EventEmitter.prototype.unDelegate = EventEmitter.prototype.off;
+EventEmitter.prototype.unDelegate = function (emitter, type) {
+    return this.off(type, emitter);
+};
 
 /**
  * Exports: {@link EventEmitter}
@@ -535,6 +517,30 @@ function emit(emitter, type, data) {
             a[0] = type;
             emitter.emit.apply(emitter, a.concat(data));
     }
+}
+
+function removeListener(type, listeners, listener) {
+    var length = listeners.length;
+    var index = length;
+
+    while (index--) {
+        if (listeners[index].callback === listener) {
+            break;
+        }
+    }
+
+    if (index < 0) {
+        return false;
+    }
+
+    if (length === 1) {
+        listeners.length = 0;
+        delete listeners[type];
+    } else {
+        listeners.splice(index, 1);
+    }
+
+    return true;
 }
 
 function isFunction(fnc) {

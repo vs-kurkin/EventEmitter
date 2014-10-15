@@ -101,10 +101,10 @@ emitter
 ```
 
 Для подобных ситуаций существует два метода:
- * `{EventEmitter} EventEmitter#delegate(type, emitter[, alias=type])`
+ * `{EventEmitter} EventEmitter#delegate(emitter, type[, alias=type])`
  <br />Делегирует событие `type` на объект `emitter`. Необязательным аргументом задается имя события, которое будет вызвано на объекте `emitter`.
 
- * `{EventEmitter} EventEmitter#unDelegate(type, emitter)`
+ * `{EventEmitter} EventEmitter#unDelegate(emitter, type)`
  <br />Снимает делегирование события `type` на объект `emitter`.
  
 Вышепреведенный пример теперь можно записать так:
@@ -119,18 +119,26 @@ listener
   });
 
 emitter
-  .delegate('event', listener, 'someEvent')
+  .delegate(listener, 'event', 'someEvent')
   .emit('event', 'bar');
 ```
 
-Стоит добавить, что следующие строки:
+Следующие строки:
 ```js
-emitter.delegate('event', listener);
-emitter.delegate('event', listener, 'event');
+emitter.delegate(listener, 'event');
+emitter.delegate(listener, 'event', 'event');
 ```
-эквивалентны записи:
+эквивалентны:
 ```js
 emitter.on('event', listener);
+```
+, a эта строка:
+```js
+emitter.delegate(listener, 'event');
+```
+эквивалентна:
+```js
+emitter.off('event', listener);
 ```
 
 ### <a name="stopEmit"></a>Остановка выполнения обработчиков событий
