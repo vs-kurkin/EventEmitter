@@ -65,6 +65,36 @@ var suits = [
         }
     },
     {
+        name: 'Create, subscribe two listener & all unsubscribe with emit the event',
+        native: function () {
+            new NativeEventEmitter()
+                .on(EVENT_NAME, listener)
+                .on('removeListener', listener)
+                .removeAllListeners();
+        },
+        custom: function () {
+            new EventEmitter()
+                .on(EVENT_NAME, listener)
+                .on('removeListener', listener)
+                .removeAllListeners();
+        }
+    },
+    {
+        name: 'Create, subscribe two listener & all unsubscribe with specified the name of the event and emit event',
+        native: function () {
+            new NativeEventEmitter()
+                .on(EVENT_NAME, listener)
+                .on('removeListener', listener)
+                .removeAllListeners(EVENT_NAME);
+        },
+        custom: function () {
+            new EventEmitter()
+                .on(EVENT_NAME, listener)
+                .on('removeListener', listener)
+                .removeAllListeners(EVENT_NAME);
+        }
+    },
+    {
         name: 'Emit one listener without params',
         fn: function () {
             emitter.emit(EVENT_NAME);

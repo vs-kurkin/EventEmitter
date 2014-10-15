@@ -259,8 +259,14 @@ EventEmitter.prototype.off = function (type, listener) {
     }
 
     if (isFunction(listener) || isFunction(listener.emit)) {
-        if (removeListener(type, listeners, listener) && _events.removeListener) {
-            this.emit('removeListener', type, listener);
+        if (removeListener(listeners, listener)) {
+            if (_events.removeListener) {
+                this.emit('removeListener', type, listener);
+            }
+
+            if (listeners.length === 0) {
+                _events[type] = null;
+            }
         }
     } else {
         throw new Error(LISTENER_TYPE_ERROR);
@@ -286,50 +292,31 @@ EventEmitter.prototype.removeListener = EventEmitter.prototype.off;
 EventEmitter.prototype.removeAllListeners = function (type) {
     var _events = this._events;
     var key;
-    var listeners;
-    var index;
-    var callback;
+    var hasNotType = arguments.length === 0;
 
     if (!_events) {
         return this;
     }
 
-    if (!_events.removeListener) {
-        if (arguments.length === 0) {
-            this._events = {};
-        } else if (_events[type]) {
-            delete _events[type];
+    if (_events.removeListener) {
+        if (!hasNotType) {
+            removeAllListeners(this, type, _events);
+
+            return this;
         }
 
-        return this;
-    }
-
-    if (arguments.length === 0) {
         for (key in _events) {
-            if (key === 'removeListener') {
-                continue;
+            if (key !== 'removeListener' && _events.hasOwnProperty(key)) {
+                removeAllListeners(this, key, _events);
             }
-
-            this.removeAllListeners(key);
         }
 
-        this.removeAllListeners('removeListener');
+        removeAllListeners(this, 'removeListener', _events);
+    }
+
+    if (hasNotType) {
         this._events = {};
-
-        return this;
     }
-
-    listeners = _events[type];
-    index = listeners.length;
-
-    while (index) {
-        callback = listeners[--index].callback;
-        listeners.length = index;
-
-        this.emit('removeListener', type, callback);
-    }
-
-    delete _events[type];
 
     return this;
 };
@@ -519,7 +506,7 @@ function emit(emitter, type, data) {
     }
 }
 
-function removeListener(type, listeners, listener) {
+function removeListener(listeners, listener) {
     var length = listeners.length;
     var index = length;
 
@@ -535,12 +522,27 @@ function removeListener(type, listeners, listener) {
 
     if (length === 1) {
         listeners.length = 0;
-        delete listeners[type];
     } else {
         listeners.splice(index, 1);
     }
 
     return true;
+}
+
+function removeAllListeners(emitter, type, events) {
+    var listeners = events[type];
+
+    if (!listeners) {
+        return;
+    }
+
+    var index = listeners.length;
+
+    while (index--) {
+        emitter.emit('removeListener', type, listeners.pop().callback);
+    }
+
+    events[type] = null;
 }
 
 function isFunction(fnc) {
