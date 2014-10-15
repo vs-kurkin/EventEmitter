@@ -6,7 +6,7 @@ var EventEmitter = require('../../EventEmitter');
 
 describe('Check delegate/unDelegate', function () {
     var TEST_EVENT_NAME = 'test';
-    var TEST_EVENT_OTHER = 'other';
+    var TEST_EVENT_OTHER = 0;
     var lOne;
     var lTwo;
     var emitter;

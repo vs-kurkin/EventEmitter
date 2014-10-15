@@ -420,7 +420,7 @@ EventEmitter.prototype.emit = function (type, args) {
         if (isFunction(callback)) {
             call(callback, listener.context == null ? this : listener.context, _event.data);
         } else {
-            emit(callback, listener.type || type, _event.data);
+            emit(callback, listener.type, _event.data);
         }
 
         if (_event.stop) {
