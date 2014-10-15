@@ -299,19 +299,19 @@ EventEmitter.prototype.removeAllListeners = function (type) {
     }
 
     if (_events.removeListener) {
-        if (!hasNotType) {
+        if (hasNotType) {
+            for (key in _events) {
+                if (key !== 'removeListener' && _events.hasOwnProperty(key)) {
+                    removeAllListeners(this, key, _events);
+                }
+            }
+
+            removeAllListeners(this, 'removeListener', _events);
+        } else {
             removeAllListeners(this, type, _events);
 
             return this;
         }
-
-        for (key in _events) {
-            if (key !== 'removeListener' && _events.hasOwnProperty(key)) {
-                removeAllListeners(this, key, _events);
-            }
-        }
-
-        removeAllListeners(this, 'removeListener', _events);
     }
 
     if (hasNotType) {
