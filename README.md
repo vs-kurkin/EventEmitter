@@ -13,16 +13,20 @@ EventEmitter
 ### Стандартные события:
  * `EventEmitter.MAX_LISTENERS = 10`
  <br />Максимальное количество обработчиков события по-умолчанию.
+
  * `EventEmitter.EVENT_NEW_LISTENER = 'newListener'`
  <br />Имя события, которое срабатывает при добавлении нового обработчика.
+
  * `EventEmitter.EVENT_REMOVE_LISTENER = 'removeListener'`
  <br />Имя события, которое срабатывает при удалении обработчика.
  
 В обработчик события `EventEmitter.EVENT_NEW_LISTENER` передается три аргумента:
  * `{String|Number} type`
  <br />Тип события, на которое был добавлен обработчик.
+
  * `{Function|EventEmitter} callback`
  <br />Функция или объект-обработчик события.
+
  * `{*} context`
  <br />Контекст, в котором будет вызвана функция-обработчик.
  
