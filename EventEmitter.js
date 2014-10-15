@@ -316,6 +316,8 @@ EventEmitter.prototype.removeAllListeners = function (type) {
 
     if (hasNotType) {
         this._events = {};
+    } else {
+        _events[type] = null;
     }
 
     return this;
