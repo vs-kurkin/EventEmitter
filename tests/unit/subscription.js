@@ -1,6 +1,6 @@
 'use strict';
 
-var EventEmitter = require('../EventEmitter.js');
+var EventEmitter = require('../../EventEmitter');
 
 /* global describe, it, expect, beforeEach, jasmine */
 
@@ -26,10 +26,9 @@ describe('Check subscription/unsubscription', function() {
     });
 
     describe('Check subscription ', function () {
-        var name = 'TEST_EVENT',
-            oName = 'TEST_EVENT_OTHER',
-            lOne,
-            lTwo;
+        var name = 'TEST_EVENT';
+        var lOne;
+        var lTwo;
 
         beforeEach(function () {
             lOne = jasmine.createSpy('lOne');
@@ -69,9 +68,9 @@ describe('Check subscription/unsubscription', function() {
     });
 
     describe('Check unsubscription', function () {
-        var name = 'TEST_EVENT',
-            lOne,
-            lTwo;
+        var name = 'TEST_EVENT';
+        var lOne;
+        var lTwo;
 
         beforeEach(function () {
             lOne = jasmine.createSpy('lOne');
@@ -165,11 +164,11 @@ describe('Check subscription/unsubscription', function() {
     });
 
     describe('Passing invocation context in subscription', function () {
-        var name = 'TEST_EVENT',
-            ctxOne = {foo: 'bar'},
-            ctxTwo = {baz: 'foo'},
-            lOne,
-            lTwo;
+        var name = 'TEST_EVENT';
+        var ctxOne = {foo: 'bar'};
+        var ctxTwo = {baz: 'foo'};
+        var lOne;
+        var lTwo;
 
         beforeEach(function () {
             lOne = jasmine.createSpy('lOne');

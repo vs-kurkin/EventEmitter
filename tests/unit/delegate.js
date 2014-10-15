@@ -1,16 +1,16 @@
 'use strict';
 
-var EventEmitter = require('../EventEmitter');
+var EventEmitter = require('../../EventEmitter');
 
 /* globals describe, it, expect, beforeEach, jasmine */
 
 describe('Check delegate/unDelegate', function () {
-    var TEST_EVENT_NAME = 'test',
-        TEST_EVENT_OTHER = 'other',
-        lOne,
-        lTwo;
-
-    var emitter, oEmitter;
+    var TEST_EVENT_NAME = 'test';
+    var TEST_EVENT_OTHER = 0;
+    var lOne;
+    var lTwo;
+    var emitter;
+    var oEmitter;
 
     beforeEach(function () {
         emitter = new EventEmitter();
@@ -26,6 +26,10 @@ describe('Check delegate/unDelegate', function () {
     });
 
     describe('Check \'delegate\' method', function () {
+        it('Check of the returned value', function () {
+            expect(emitter.delegate(oEmitter, TEST_EVENT_NAME)).toBe(emitter);
+        });
+
         it('Delegates an emitted event to another emitter', function () {
             emitter.addListener(TEST_EVENT_NAME, lOne);
             oEmitter.addListener(TEST_EVENT_NAME, lTwo);
@@ -62,7 +66,7 @@ describe('Check delegate/unDelegate', function () {
             expect(lOther.calls.any()).toBe(false);
         });
 
-        it('Passes call arguments to the listener of the event to be delegated to', function () {
+        it('Passes call arguments to the callback of the event to be delegated to', function () {
             emitter.addListener(TEST_EVENT_NAME, lOne);
             oEmitter.addListener(TEST_EVENT_OTHER, lTwo);
 
@@ -81,6 +85,10 @@ describe('Check delegate/unDelegate', function () {
     });
 
     describe('Check \'unDelegate\' method', function () {
+        it('Check of the returned value', function () {
+            expect(emitter.unDelegate(oEmitter, TEST_EVENT_NAME)).toBe(emitter);
+        });
+
         it('Stops delegation of an emitted event to another emitter', function () {
             emitter.addListener(TEST_EVENT_NAME, lOne);
             oEmitter.addListener(TEST_EVENT_OTHER, lTwo);

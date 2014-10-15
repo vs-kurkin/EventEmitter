@@ -1,12 +1,12 @@
 'use strict';
 
-var EventEmitter = require('../EventEmitter');
+var EventEmitter = require('../../EventEmitter');
 
 /* global describe, xdescribe, it, expect, beforeEach, afterEach, jasmine */
 
 describe('Maximum Listeners', function () {
-    var emitter,
-        listeners = EventEmitter.MAX_LISTENERS;
+    var emitter;
+    var listeners = EventEmitter.MAX_LISTENERS;
 
     beforeEach(function () {
         emitter = new EventEmitter();
