@@ -1,8 +1,8 @@
 EventEmitter
 ============
 
-Расширенная обратносовместимая реализация модуля [EventEmitter](http://nodejs.org/api/events.html#events_class_events_eventemitter) из стандартной библиотеки `NodeJS`.
-Дополнительное API призвано повысить удобство разработки и читаемости кода.
+Расширенная, кросс-платформенная, обратносовместимая реализация модуля [EventEmitter](http://nodejs.org/api/events.html#events_class_events_eventemitter) из стандартной библиотеки `NodeJS`.
+Дополнительное API призвано повысить удобство разработки и читаемость кода.
 Для этого были внедрены следующие механизмы:
  * [Контекст обработчиков событий](#context)
  * [Данные события](#data)
@@ -48,10 +48,12 @@ EventEmitter
 ### <a name="data"></a>Данные события
 Данными события являются все параметры (кроме первого, типа события), переданные в метод `EventEmitter#emit`. Любой обработчик события может динамически менять набор этих данных.
 
-`{EventEmitter} EventEmitter#setEventData([args])`
-
-Здесь:
-* `{...*} [args]` Новые данные события. Все переданные аргументы станут данными события и будут переданы в последующие обработчики текущего события. Если ни одного аргумента не было передано, данные события будут удалены.
+ * `{EventEmitter} EventEmitter#setEventData([...*] args)`
+<br />Устанавливает новые данные события. Все переданные аргументы будут переданы в последующие обработчики текущего события. Если ни одного аргумента не было передано, данные события будут удалены.
+ * `{Array|null} EventEmitter#getEventData()`
+<br />Возвращает текущие данные события в виде массива.
+ * `{String|Number|null} EventEmitter#getEventType()`
+<br />Возвращает тип текущего события.
 
 ```js
 new EventEmitter()
@@ -63,8 +65,8 @@ new EventEmitter()
     foo === 'baz'; // true
     this.setEventData();
   })
-  .on('event', function (foo) {
-    argiments.length; // 0
+  .on('event', function () {
+    arguments.length; // 0
   })
   .emit('event', 'bar');
 ```
@@ -133,7 +135,6 @@ emitter.on('event', listener);
 Метод возвращает `true`, если выполнение обработчиков было остановлено, либо `false` в противном случае.
  
 Несколько примеров:
-
 ```js
 new EventEmitter()
   .on('event', function () {
@@ -161,6 +162,8 @@ new EventEmitter()
 Не реализованы.
 
 ### Тесты
-Unit-тесты: `npm install; npm test`.
+Unit-тесты:
+<br />`npm install; npm test`.
 <br />
-Сравнительные тесты производительности: `cd tests/benchmark; npm install; npm test`.
+<br />Сравнение производительности с нативным EventEmitter-ом:
+<br />`cd tests/benchmark; npm install; npm test`.
