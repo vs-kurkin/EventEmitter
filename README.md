@@ -180,7 +180,7 @@ new EventEmitter()
 
 ## Тесты
 Unit-тесты:
-<br />`npm install; npm test`.
+<br />`npm install; npm test`
 <br />
 <br />Сравнение производительности с нативным EventEmitter-ом:
-<br />`cd tests/benchmark; npm install; npm test`.
+<br />`cd tests/benchmark; npm install; npm test`
