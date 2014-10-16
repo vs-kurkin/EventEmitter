@@ -134,7 +134,7 @@ emitter.on('event', listener);
 ```
 , a эта строка:
 ```js
-emitter.delegate(listener, 'event');
+emitter.unDelegate(listener, 'event');
 ```
 эквивалентна:
 ```js
