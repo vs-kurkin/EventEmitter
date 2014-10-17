@@ -179,8 +179,8 @@ new EventEmitter()
 Не реализованы.
 
 ## Тесты
-Unit-тесты:
-<br />`npm install; npm test`
+Тесты в NodeJS и во всех браузерах:
+<br />`npm install; npm test`.
 <br />
 <br />Сравнение производительности с нативным EventEmitter-ом:
 <br />`cd tests/benchmark; npm install; npm test`

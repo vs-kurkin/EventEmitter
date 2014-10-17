@@ -1,29 +1,36 @@
 {
-  "name": "EventEmitter",
-  "author": "Vladislav Kurkin <b-vladi@cs-console.ru> (https://github.com/B-Vladi)",
-  "version": "0.2.0",
-  "main": "EventEmitter.js",
-  "homepage": "https://github.com/B-Vladi/EventEmitter",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/B-Vladi/EventEmitter.git"
-  },
-  "engines": {
-    "node": "*"
-  },
-  "devDependencies": {
-    "browserify": "~3.x",
-    "karma": ">=0.12.16",
-    "karma-browserify": "^0.2.1",
-    "karma-jasmine": ">=0.2",
-    "karma-phantomjs-launcher": "^0.1.4"
-  },
-  "scripts": {
-    "test": "node_modules/karma/bin/karma start karma.conf.js"
-  },
-  "bugs": {
-    "email": "b-vladi@cs-console.ru",
-    "url": "https://github.com/B-Vladi/EventEmitter/issues"
-  }
+    "name": "EventEmitter",
+    "author": "Vladislav Kurkin <b-vladi@cs-console.ru> (https://github.com/B-Vladi)",
+    "version": "0.2.0",
+    "main": "EventEmitter.js",
+    "homepage": "https://github.com/B-Vladi/EventEmitter",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/B-Vladi/EventEmitter.git"
+    },
+    "engines": {
+        "node": "*"
+    },
+    "devDependencies": {
+        "jasmine-core": "",
+        "browserify": "~3.x",
+        "karma-jasmine": ">=0.2",
+        "karma": ">=0.12.16",
+        "karma-detect-browsers": "",
+        "karma-chrome-launcher": "",
+        "karma-firefox-launcher": "",
+        "karma-ie-launcher": "",
+        "karma-safari-launcher": "",
+        "karma-opera-launcher": "",
+        "karma-phantomjs-launcher": "^0.1.4",
+        "karma-browserify": "^0.2.1"
+    },
+    "scripts": {
+        "test": "node_modules/karma/bin/karma start karma.conf.js"
+    },
+    "bugs": {
+        "email": "b-vladi@cs-console.ru",
+        "url": "https://github.com/B-Vladi/EventEmitter/issues"
+    }
 }
