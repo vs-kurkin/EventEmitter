@@ -187,10 +187,11 @@ EventEmitter.prototype.setMaxListeners = function (count) {
  * @param {String} type Тип события.
  * @param {Function|EventEmitter} listener Обработчик события.
  * @param {Object} [context=this] Контекст выполнения обработчика.
+ * @throws {Error} Бросает исключение, если listener имеет некорректный тип.
  * @returns {EventEmitter}
  */
 EventEmitter.prototype.on = function (type, listener, context) {
-    if (!(isFunction(listener) || isFunction(listener.emit))) {
+    if (!isListener(listener)) {
         throw new Error(LISTENER_TYPE_ERROR);
     }
 
@@ -248,6 +249,7 @@ EventEmitter.prototype.once = function (type, listener, context) {
  * Удаляет обработчик события.
  * @param {String} type Тип события.
  * @param {Function|EventEmitter} listener Обработчик, который необходимо удалить.
+ * @throws {Error} Бросает исключение, если listener имеет некорректный тип.
  * @returns {EventEmitter}
  */
 EventEmitter.prototype.off = function (type, listener) {
@@ -258,7 +260,7 @@ EventEmitter.prototype.off = function (type, listener) {
         return this;
     }
 
-    if (isFunction(listener) || isFunction(listener.emit)) {
+    if (isListener(listener)) {
         if (removeListener(listeners, listener)) {
             if (_events.removeListener) {
                 this.emit('removeListener', type, listener);
@@ -549,6 +551,10 @@ function removeAllListeners(emitter, type, events) {
 
 function isFunction(fnc) {
     return typeof fnc === 'function';
+}
+
+function isListener(listener) {
+    return listener && (isFunction(listener) || isFunction(listener.emit));
 }
 
 function getLastListener(emitter, type) {
