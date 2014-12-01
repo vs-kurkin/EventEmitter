@@ -14,6 +14,14 @@ function EventEmitter() {
     this._maxListeners = this._maxListeners;
 }
 
+try {
+    var EE = require('events').EventEmitter;
+} finally {
+    console.log(EE);
+    EventEmitter.prototype = new (EE || Object);
+    EventEmitter.prototype.constructor = EventEmitter;
+}
+
 /**
  * Количество обработчиков одного события по-умолчанию.
  * @static
