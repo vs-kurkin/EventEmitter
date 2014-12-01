@@ -17,7 +17,6 @@ function EventEmitter() {
 try {
     var EE = require('events').EventEmitter;
 } finally {
-    console.log(EE);
     EventEmitter.prototype = new (EE || Object);
     EventEmitter.prototype.constructor = EventEmitter;
 }
