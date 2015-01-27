@@ -2,11 +2,11 @@
 /**
  * @fileOverview EventEmitter.
  */
-var LISTENER_TYPE_ERROR = 'Listener must be a function or EventEmitter';
 
 /**
  * Наделяет объект событийной моделью.
  * @constructor
+ * @extend {EventEmitter}
  */
 function EventEmitter() {
     this._events = null;
@@ -14,12 +14,20 @@ function EventEmitter() {
     this._maxListeners = this._maxListeners;
 }
 
+/**
+ * Сообщение об ошибке попытки подписки некорректного обработчика.
+ * @const
+ * @type {String}
+ */
+EventEmitter.LISTENER_TYPE_ERROR = 'Listener must be a function or EventEmitter';
+
 try {
     var EE = require('events').EventEmitter;
-} finally {
-    EventEmitter.prototype = new (EE || Object);
-    EventEmitter.prototype.constructor = EventEmitter;
+} catch (error) {
 }
+
+EventEmitter.prototype = new (EE || Object);
+EventEmitter.prototype.constructor = EventEmitter;
 
 /**
  * Количество обработчиков одного события по-умолчанию.
@@ -199,7 +207,7 @@ EventEmitter.prototype.setMaxListeners = function (count) {
  */
 EventEmitter.prototype.on = function (type, listener, context) {
     if (!isListener(listener)) {
-        throw new Error(LISTENER_TYPE_ERROR);
+        throw new Error(EventEmitter.LISTENER_TYPE_ERROR);
     }
 
     var _events = this._events || (this._events = {});
@@ -278,7 +286,7 @@ EventEmitter.prototype.off = function (type, listener) {
             }
         }
     } else {
-        throw new Error(LISTENER_TYPE_ERROR);
+        throw new Error(EventEmitter.LISTENER_TYPE_ERROR);
     }
 
     return this;
