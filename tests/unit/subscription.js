@@ -25,7 +25,20 @@ describe('Check subscription/unsubscription', function() {
         expect(typeof emitter.removeAllListeners).toBe('function');
     });
 
-    describe('Check subscription ', function () {
+    describe('Check default listeners', function () {
+        it('Should use existing handlers', function () {
+            var _events = {};
+            var emitter = {
+                _events: _events
+            };
+
+            EventEmitter.call(emitter);
+
+            expect(emitter._events).toBe(_events);
+        });
+    });
+
+    describe('Check subscription', function () {
         var name = 'TEST_EVENT';
         var lOne;
         var lTwo;

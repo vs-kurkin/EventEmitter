@@ -9,8 +9,8 @@
  * @extend {EventEmitter}
  */
 function EventEmitter() {
-    this._events = null;
     this._event = null;
+    this._events = this._events;
     this._maxListeners = this._maxListeners;
 }
 
