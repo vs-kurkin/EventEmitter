@@ -2,10 +2,10 @@
     "name" : "event-emitter-speed-comparison",
     "version" : "0.0.1",
     "dependencies": {
-        "benchmark" : ""
+        "benchmark" : "1.0.0"
     },
     "scripts": {
-        "test": "node start.js"
+        "test": "npm install && node start.js"
     },
     "private" : true
 }

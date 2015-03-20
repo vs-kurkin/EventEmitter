@@ -19,7 +19,7 @@ EventEmitter
 
  * `EventEmitter.EVENT_REMOVE_LISTENER = 'removeListener'`
  <br />Имя события, которое срабатывает при удалении обработчика.
- 
+
 В обработчик события `EventEmitter.EVENT_NEW_LISTENER` передается три аргумента:
  * `{String|Number} type`
  <br />Тип события, на которое был добавлен обработчик.
@@ -29,7 +29,7 @@ EventEmitter
 
  * `{*} context`
  <br />Контекст, в котором будет вызвана функция-обработчик.
- 
+
 ### <a name="context"></a>Расширенное API подписки на события
 Методы подписки на события имеют расширенный интерфейс, а так же новый метод `EventEmitter#off`:
 
@@ -50,7 +50,7 @@ EventEmitter
 
  * `{Object|null} [context=this]`
  <br />Необязательный аргумент, задает контекст обработчика события.
- 
+
 ### <a name="data"></a>Данные события
 Данными события являются все параметры (кроме первого, типа события), переданные в метод `EventEmitter#emit`. Любой обработчик события может динамически менять набор этих данных.
 
@@ -106,7 +106,7 @@ emitter
 
  * `{EventEmitter} EventEmitter#unDelegate(emitter, type)`
  <br />Снимает делегирование события `type` на объект `emitter`.
- 
+
 Вышепреведенный пример теперь можно записать так:
 
 ```js
@@ -148,9 +148,9 @@ emitter.off('event', listener);
  * `{Boolean} EventEmitter#stopEmit([type])`
  <br />Останавливает выполнение обработчиков события текущего объекта.
  В этом методе так же доступна фильтрация по типу события.
- 
+
 Метод возвращает `true`, если выполнение обработчиков было остановлено, либо `false` в противном случае.
- 
+
 Несколько примеров:
 ```js
 new EventEmitter()
@@ -163,7 +163,7 @@ new EventEmitter()
     // Этот обработчик никогда не будет вызван.
   })
   .emit('event');
-  
+
 function listener () {
   this.stopEmit('error'); // true, будет остановлено только событие error
   new EventEmitter().stopEmit(); // false, другой экземпляр не останавливает выполнение
@@ -183,4 +183,4 @@ new EventEmitter()
 <br />`npm install; npm test`.
 <br />
 <br />Сравнение производительности с нативным EventEmitter-ом:
-<br />`cd tests/benchmark; npm install; npm test`
+<br />`cd tests/benchmark; npm test`

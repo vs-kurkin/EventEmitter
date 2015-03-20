@@ -1,7 +1,7 @@
 {
     "name": "EventEmitter",
     "author": "Vladislav Kurkin <b-vladi@cs-console.ru> (https://github.com/B-Vladi)",
-    "version": "0.2.5",
+    "version": "0.2.6",
     "main": "EventEmitter.js",
     "homepage": "https://github.com/B-Vladi/EventEmitter",
     "license": "MIT",
@@ -27,7 +27,7 @@
         "karma-browserify": "^0.2.1"
     },
     "scripts": {
-        "test": "node_modules/karma/bin/karma start karma.conf.js"
+        "test": "npm install && node_modules/karma/bin/karma start karma.conf.js"
     },
     "bugs": {
         "email": "b-vladi@cs-console.ru",

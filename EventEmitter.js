@@ -157,14 +157,10 @@ EventEmitter.prototype.setEventData = function (args) {
  *   .emit('event', 'foo', 'bar');
  */
 EventEmitter.prototype.getEventData = function () {
-    var data;
-    var length;
-    var result;
-
     if (this._event) {
-        data = this._event.data;
-        length = data.length;
-        result = new Array(length);
+        var data = this._event.data;
+        var length = data.length;
+        var result = new Array(length);
 
         while (length) {
             result[--length] = data[length];
